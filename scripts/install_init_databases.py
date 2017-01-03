@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rethinkdb as r
+import argparse
 import os
 import sys
 

@@ -24,18 +24,21 @@ yum install vim net-tools htop wget gcc python-devel -y
 yum install python-pip -y
 pip install --upgrade pip
 
-# Make all install files executable
-chmod +x scripts/*
-
+# Set directory var
 cloudsDir=`dirname "$(readlink -f "$0")"`
 SCRIPTS="$cloudsDir/scripts/"
+
+# Change permissions
+chmod +x scripts/*
+chown cloudsofhoney:nginx -R $cloudsDir
+
 
 cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
 echo "[`date`] ========= Setup config file ========="
 read -p "Enter domain name: " -e domainName
-sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = $domainName/g" ../server/web_interface/config.py
+sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
 
 echo "[`date`] ========= Installing postfix ========="
 source install_smtp.sh
@@ -48,10 +51,10 @@ echo "[`date`] ========= Installing ELK stack ========="
 
 echo "[`date`] ========= Installing MariaDB ========="
 ./install_database.sh
-source install_init_databases.py $SCRIPTS
+python install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="
-./install_management_web_interface.sh
+source install_management_web_interface.sh
 
 echo "[`date`] ========= FirewallD setup ========="
 ./install_firewalld.sh
