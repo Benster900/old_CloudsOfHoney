@@ -2,9 +2,11 @@
 yum install ntp ntpdate ntp-doc -y
 systemctl enable ntpd
 systemctl start ntpd
-ntpdate pool.ntp.org
+ntpdate pool.ntp.org || true
 
 ##################################### Install Java ##################################
+yum install wget -y
+
 cd /opt
 wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-linux-x64.rpm"
 rpm -Uvh jre-8u102-linux-x64.rpm
@@ -67,7 +69,7 @@ server {
         listen 80 default_server;
         listen [::]:80 default_server;
         server_name _;
-        return 301 https://$host$request_uri;
+        return 301 https://\$host$request_uri;
 }
 
 server {
@@ -93,7 +95,7 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /etc/nginx/htpasswd.users;
 
-	location / {
+	location /kibana {
         	proxy_pass http://localhost:5601;
         	proxy_http_version 1.1;
         	proxy_set_header Upgrade \$http_upgrade;
@@ -129,7 +131,7 @@ server {
         listen 80 default_server;
         listen [::]:80 default_server;
         server_name _;
-        return 301 https://$host$request_uri;
+        return 301 https://\$host$request_uri;
   }
 
 server {
@@ -157,7 +159,7 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /etc/nginx/htpasswd.users;
 
-        location / {
+        location /kibana {
                 proxy_pass http://localhost:5601;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade \$http_upgrade;
@@ -199,34 +201,13 @@ sudo yum -y install logstash
 cd /usr/share/logstash
 ./bin/logstash-plugin install logstash-input-beats
 
-read -p "Logstash encryption or no encryption [E/N]: " -n 1 -r
-if [[ $REPLY =~ ^[E]$ ]]; then
+# Install GeoIP
+sudo mkdir -p /usr/share/logstash/vendor/geoip
+cd /usr/share/logstash/vendor/geoip
+sudo wget "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz"
+sudo wget "http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.dat.gz"
+sudo gunzip *.dat.gz
 
-  read -p "OpenSSL cert or Let's Encrypt Cert [L/O]: " -n 1 -r
-  if [[ $REPLY =~ ^[L]$ ]]; then
-touch /etc/logstash/conf.d/02-beats-input.conf
-cat > /etc/logstash/conf.d/02-beats-input.conf << EOF
-input {
-  beats {
-    port => 5044
-    ssl => true
-    ssl_certificate => "/etc/letsencrypt/live/$domainName/fullchain.pem"
-    ssl_key => "/etc/letsencrypt/live/$domainName/privkey.pem"
-  }
-}
-EOF
-  else
-echo 'input {
-  beats {
-    port => 5044
-    ssl => true
-    ssl_certificate => "/etc/nginx/ssl/nginx.crt"
-    ssl_key => "/etc/nginx/ssl/nginx.key"
-  }
-}
-' | sudo tee /etc/logstash/conf.d/02-beats-input.conf
-  fi
-else
 
 echo 'input {
   beats {
@@ -235,8 +216,6 @@ echo 'input {
   }
 }
 ' | sudo tee /etc/logstash/conf.d/02-beats-input.conf
-
-fi
 
 
 #### Syslog filter ####
@@ -254,7 +233,6 @@ echo 'filter {
   }
 }
 ' | sudo tee /etc/logstash/conf.d/10-syslog-filter.conf
-
 
 
 #### Elasticsearch output ####
