@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block body %}
+
+<style>
+table, td, th {
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+table {
+    border-collapse: collapse;
+    width: 90%;
+}
+
+th, td {
+    padding: 15px;
+}
+</style>
+{{sensors}}
+
+
+<center><table>
+  <tr>
+    <th>id</th>
+    <th>Name</th>
+    <th>Hostname</th>
+    <th>IPaddr</th>
+    <th>Sensor Type</th>
+    <th>UUID</th>
+    <th>Attacks</th>
+  </tr>
+  {% set count = 1 %}
+  {% for item in sensors %}
+    <tr>
+      <td>{{ count }}</td>
+      <td>{{ item['name'] }}</td>
+      <td>{{ item['hostname'] }}</td>
+      <td>{{ item['ipaddr'] }}</td>
+      <td>{{ item['sensorType'] }}</td>
+      <td>{{ item['id'] }}</td>
+      <td>{{ item['Attacks'] }}</td>
+    </tr>
+  {% set count = count + 1 %}
+  {% endfor %}
+</table></center>
+
+{% endblock %}

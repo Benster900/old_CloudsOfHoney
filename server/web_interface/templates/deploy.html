@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="container">
+  <div id="content">
+    <!-- Drop down menu for scripts -->
+    <h4>Select script</h4>
+    <form action="{{ url_for('deploy') }}" method="POST">
+      <select id="scriptSelect" name="scriptSelect" onchange="this.form.submit()">
+        {% if (scriptRequest == "" or scriptRequest == "newScript") %}
+          <option value="newScript" selected value>New Script</option>
+        {% else %}
+          <option value="newScript">New Script</option>
+          <option value="{{scriptRequest}}" selected value>{{scriptRequest}}</option>
+        {% endif %}
+        {% for item in deployScripts %}
+          <option value="{{item}}">{{item}}</option>
+        {% endfor %}
+      </select></br></br>
+    </form>
+
+    <!-- Name text box for script -->
+    <h4>Name</h4>
+    <textarea rows="2" cols="50">{{ scriptRequest }}</textarea>
+  
+
+    <!-- Command to install and setup honeypot -->
+    <h4> Deploy Command </h4>
+    <style>.textboxborder { border-style:solid; border-color:#287EC7; width: 90%; height: 50px; } </style>
+    <p class="textboxborder">
+      {{deployCommand}}
+    </p>
+
+    <!-- Script contents -->
+    <br/><br/><h4>Script</h4>
+    <textarea rows="10" cols="100">{{fileContents}}</textarea>
+  </div>
+</div>
+{% endblock %}
