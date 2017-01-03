@@ -14,4 +14,6 @@ firewall-cmd --zone=public --permanent --add-service=https
 firewall-cmd --zone=public --permanent --add-service=ssh
 firewall-cmd --zone=public --permanent --add-port=3306/tcp
 firewall-cmd --zone=public --permanent --add-port=5044/tcp
+firewall-cmd --zone=public --permanent --add-port=9000/tcp
+firewall-cmd --zone=public --permanent --add-port=8080/tcp
 firewall-cmd --reload

@@ -41,7 +41,7 @@ def script(scriptName):
 """
 @app.route('/deploy/newsensor/<string:token>', methods=['GET','POST'])
 def newSensor():
-	
+
 	return
 
 """
@@ -81,7 +81,7 @@ def sensors():
 # Send user to kibana interface to query data
 @app.route('/kibana')
 def kibana():
-    return redirect("http://localhost:5601", code=302)
+    return redirect("https://localhost:9000", code=302)
 
 @app.route('/contact')
 def contact():

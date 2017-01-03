@@ -46,7 +46,6 @@ pip install configparser pyOpenSSL tftpy twisted virtualenv
 pip install -r requirements.txt
 
 adduser cowrie
-passwd cowrie
 su - cowrie
 
 git clone https://github.com/micheloosterhof/cowrie.git

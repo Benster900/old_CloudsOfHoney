@@ -19,7 +19,13 @@ fi
 
 # Install software and update system
 yum update -y && yum upgrade -y
-yum install vim net-tools htop wget -y
+yum install epel-release -y
+yum install vim net-tools htop wget gcc python-devel -y
+yum install python-pip -y
+pip install --upgrade pip
+
+# Make all install files executable
+chmod +x scripts/*
 
 cloudsDir=`dirname "$(readlink -f "$0")"`
 SCRIPTS="$cloudsDir/scripts/"
@@ -31,9 +37,8 @@ echo "[`date`] ========= Setup config file ========="
 read -p "Enter domain name: " -e domainName
 sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = $domainName/g" ../server/web_interface/config.py
 
-
 echo "[`date`] ========= Installing postfix ========="
-./install_smtp.sh
+source install_smtp.sh
 
 echo "[`date`] ========= Installing Ansible ========="
 ./install_ansible.sh
@@ -42,11 +47,11 @@ echo "[`date`] ========= Installing ELK stack ========="
 ./install_elkstack.sh
 
 echo "[`date`] ========= Installing MariaDB ========="
-./install_mariadb.sh
+./install_database.sh
+source install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="
 ./install_management_web_interface.sh
-install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= FirewallD setup ========="
 ./install_firewalld.sh

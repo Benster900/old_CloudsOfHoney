@@ -1,5 +1,6 @@
 flask
-python-mysql
 flask-bootstrap
 flask-admin
 flask-login
+uwsgi
+rethinkdb

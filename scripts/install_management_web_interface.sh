@@ -3,19 +3,12 @@
 set -x
 set -e
 
-cat > $cloudsDir/server/web_interface.ini << EOF
-[uwsgi]
-module = wsgi
-
-master = true
-processes = 5
-
-socket = web_interface.sock
-chmod-socket = 660
-vacuum = true
-
-die-on-term = true
-EOF
+web_dir=$cloudsDir/server/web_interface
+# Install virtualenv
+pip install virtualenv
+virtualenv env
+. ../env/bin/activate
+pip install -r ../../requirements.txt
 
 cat > /etc/systemd/system/cloudsofhoneywebgui.service << EOF
 [Unit]
@@ -23,21 +16,29 @@ Description=uWSGI instance to serve CloudsOfHoney Web Interface
 After=network.target
 
 [Service]
-User=clouds
+User=cloudsofhoney
 Group=nginx
-WorkingDirectory=\$cloudsDir
-Environment="PATH=/home/user/myproject/myprojectenv/bin"
-ExecStart=/home/user/myproject/myprojectenv/bin/uwsgi --ini myproject.ini
+WorkingDirectory=$web_dir
+Environment="PATH=$web_dir/env/bin"
+ExecStart=$web_dir/env/bin/uwsgi --ini web_interface.ini
 
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl start myproject
-sudo systemctl enable myproject
+sudo systemctl start cloudsofhoneywebgui
+sudo systemctl enable cloudsofhoneywebgui
 
-cat > << /etc/nginx/conf.d/web_interface.conf
+cat > /etc/nginx/conf.d/cloudsofhoney.conf << EOF
+server {
+    listen 80;
+    server_name _;
 
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:$web_dir/web_interface.sock;
+    }
+}
 EOF
 
-systemctl enable cloudsofhoneywebgui
-systemctl start cloudsofhoneywebgui
+systemctl enable nginx
+systemctl start nginx

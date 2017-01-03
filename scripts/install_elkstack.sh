@@ -67,7 +67,7 @@ read -p "Create OpenSSL cert or Let's Encrypt Cert [L/O]" -n 1 -r
 if [[ $REPLY =~ ^[Oo]$ ]]; then
 	mkdir /etc/nginx/ssl
 	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
-  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
 server {
@@ -78,7 +78,7 @@ server {
 }
 
 server {
-        listen 443 ssl;
+        listen 9000 ssl;
         server_name _;
 
         root /usr/share/nginx/html;
@@ -100,7 +100,7 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /etc/nginx/htpasswd.users;
 
-	location /kibana {
+	location / {
         	proxy_pass http://localhost:5601;
         	proxy_http_version 1.1;
         	proxy_set_header Upgrade \$http_upgrade;
@@ -129,7 +129,7 @@ echo 'server {
 
 	read -p "Enter domain name: " -e domainName
 	sudo certbot certonly -a webroot --webroot-path=/usr/share/nginx/html -d $domainName -d www.$domainName
-	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
 server {
@@ -140,7 +140,7 @@ server {
   }
 
 server {
-	     listen 443 ssl;
+	     listen 9000 ssl;
 
         server_name ${domainName} www.${domainName};
 
@@ -164,13 +164,13 @@ server {
         auth_basic "Restricted";
         auth_basic_user_file /etc/nginx/htpasswd.users;
 
-        location /kibana {
+        location / {
                 proxy_pass http://localhost:5601;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade \$http_upgrade;
+                proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection 'upgrade';
-                proxy_set_header Host \$host;
-                proxy_cache_bypass \$http_upgrade;
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
         }
 }
 EOF
