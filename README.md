@@ -1,6 +1,11 @@
 # CloudsOfHoneyManagementNode
 I have always been a fan of the Modern Honey Network project but I always felt it lacked certain features. This is a fun project to develop my own honeypot network using MHN as a template. The big differences between my system and theres is an ELK backend, MariaDB backend, Logstash instead of hpfeeds, and malware retrieval and statistics. I mean no disrespect to the creators of the MHN project.
 
+# Installation
+git clone https://github.com/Benster900/CloudsOfHoneyManagementNode.git
+mv CloudsOfHoneyManagementNode /opt
+cd /opt/CloudsOfHoneyManagementNode
+./setupScript
 
 ## ELK stack
 ### Logstash
