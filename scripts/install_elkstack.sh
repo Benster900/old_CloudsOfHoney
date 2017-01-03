@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -x
+set -e
+
 ################################## NTP Time Sync ##################################
 yum install ntp ntpdate ntp-doc -y
 systemctl enable ntpd

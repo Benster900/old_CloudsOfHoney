@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -x
+set -e
+
 ##################################### Install/Setup FirewallD #####################################
 yum install firewalld -y
 

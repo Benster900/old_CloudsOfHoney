@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -x
+set -e
+
 # Install ansible
 yum install ansible -y
 

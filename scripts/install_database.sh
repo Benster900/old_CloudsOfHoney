@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -x
+set -e
+
 ################################## Install/Setup MariaDB ##################################
 yum install mariadb-server mariadb-client -y
 systemctl enable mariadb

@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -x
+set -e
+
 cat > $cloudsDir/server/web_interface.ini << EOF
 [uwsgi]
 module = wsgi
