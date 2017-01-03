@@ -71,13 +71,6 @@ if [[ $REPLY =~ ^[Oo]$ ]]; then
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
 server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        server_name _;
-        return 301 https://\$host$request_uri;
-}
-
-server {
         listen 9000 ssl;
         server_name _;
 
@@ -132,13 +125,6 @@ echo 'server {
 	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
-server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        server_name _;
-        return 301 https://\$host$request_uri;
-  }
-
 server {
 	     listen 9000 ssl;
 
