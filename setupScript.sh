@@ -6,7 +6,7 @@ set -e
 # Check if OS is CentOS
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
-  yum update -y && yum upgrade -y
+  #yum update -y && yum upgrade -y
 else
   echo "Please use CentOS to run this software :)"
 fi
@@ -18,44 +18,44 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Install software and update system
-yum update -y && yum upgrade -y
-yum install epel-release -y
-yum install vim net-tools htop wget gcc python-devel nginx -y
-yum install python-pip -y
-pip install --upgrade pip
+#yum update -y && yum upgrade -y
+#yum install epel-release -y
+#yum install vim net-tools htop wget gcc python-devel nginx -y
+#yum install python-pip -y
+#pip install --upgrade pip
 
 # Set directory var
 cloudsDir=`dirname "$(readlink -f "$0")"`
 SCRIPTS="$cloudsDir/scripts/"
 
 # Create user
-useradd cloudsofhoney
+#useradd cloudsofhoney
 
 # Change permissions
-chmod +x scripts/*
-chown cloudsofhoney:nginx -R $cloudsDir
+#chmod +x scripts/*
+#chown cloudsofhoney:nginx -R $cloudsDir
 
 
 cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
 echo "[`date`] ========= Setup config file ========="
-read -p "Enter domain name: " -e domainName
-hostnamectl set-hostname $domainName
-sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
+#read -p "Enter domain name: " -e domainName
+#hostnamectl set-hostname $domainName
+#sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
 
 echo "[`date`] ========= Installing postfix ========="
-source install_smtp.sh
+#source install_smtp.sh
 
 echo "[`date`] ========= Installing Ansible ========="
-./install_ansible.sh
+#./install_ansible.sh
 
 echo "[`date`] ========= Installing ELK stack ========="
-./install_elkstack.sh
+#./install_elkstack.sh
 
 echo "[`date`] ========= Installing MariaDB ========="
-./install_database.sh
-python install_init_databases.py $SCRIPTS
+#./install_database.sh
+#python install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="
 source install_management_web_interface.sh
