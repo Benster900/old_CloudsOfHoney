@@ -41,21 +41,25 @@ systemctl restart sshd
 ################################## Install/Setup Cowire ##################################
 yum install -y epel-release -y
 yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycrypto gmp gmp-devel mpfr-devel libmpc-devel -y
-pip install -upgrade pip
+pip install --upgrade pip
 pip install configparser pyOpenSSL tftpy twisted virtualenv
-pip install -r requirements.txt
 
 adduser cowrie
-su - cowrie
 
+cd /opt
 git clone https://github.com/micheloosterhof/cowrie.git
 cd cowire
+pip install -r requirements.txt
 
 virtualenv cowrie-env
 mv cowrie.cfg.dist cowrie.cfg
 sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
 sed -i 's/PIDFile=var/run/cowrie.pid/PIDFile=/home/cowrie/cowrie/var/run/cowrie.pid/g' doc/systemd/cowrie.service
 mv doc/systemd/cowrie.service /etc/systemd/system/cowrie.service
+
+#Fix permissions for cowrie user
+chown -R cowrie:users /opt/cowrie/
+
 systemctl enable cowrie.service
 systemctl start cowrie.service
 

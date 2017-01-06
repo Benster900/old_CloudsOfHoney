@@ -6,13 +6,15 @@
 		<select id="scriptSelect" name="scriptSelect" onchange="this.form.submit()">
 		{% if (scriptRequest == "" or scriptRequest == "newScript") %}
                         <option value="newScript" selected value>New Script</option>
-                {% else %}
-                        <option value="newScript">New Script</option>
-                 	<option value="{{scriptRequest}}" selected value>{{scriptRequest}}</option>
                 {% endif %}
                 {% for item in deployScripts %}
-                	<option value="{{item}}">{{item}}</option>
-                {% endfor %}
+			{% if scriptRequest == item %}
+				<option value="newScript">New Script</option>
+                	 	<option value="{{item}}" selected value >{{item}} </option>
+			{% else %}
+                	 	<option value="{{item}}">{{item}}</option>
+			{% endif %}
+		{% endfor %}
 		</select>
 
     <!-- Name text box for script -->
@@ -23,15 +25,14 @@
     <h4> Deploy Command </h4>
     <style>.textboxborder { border-style:solid; border-color:#287EC7; width: 90%; height: 50px; } </style>
     <p class="textboxborder">
-      {{deployCommand}}
+      <kbd>{{deployCommand}}</kbd>
     </p>
 
     <!-- Script contents -->
     <br/><br/><h4>Script</h4>
-    <textarea name="scriptBox" rows="20" cols="150">{{fileContents}}</textarea>
+    <textarea name="scriptBox" rows="15" cols="150">{{fileContents}}</textarea></br></br>
 
     <!-- Submit data -->
-    <input type="submit" name="submit_name" value="Send">
-
+    <input type="submit" name="submit_name" value="Submit">
 </form></br></br>
 {% endblock %}

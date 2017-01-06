@@ -41,8 +41,8 @@ def script(scriptID, scriptName):
 """
 Add new sensor to database
 """
-@app.route('/newsensor/<string:honeypotHostname>/<string:honeypoyTokenID>', methods=['GET','POST'])
-def newSensor(honeypotHostname, honeypoyTokenID):
+@app.route('/newsensor/<string:honeypotHostname>/<string:scriptID>', methods=['GET','POST'])
+def newSensor(honeypotHostname, scriptID):
 	ipAddr = None
 	hostname = None
 	sensorType = None
@@ -56,7 +56,7 @@ def newSensor(honeypotHostname, honeypoyTokenID):
 	            # Get new sensor identity
 	            ipAddr = request.remote_addr
 		    hostname = honeypotHostname
-		    tokenID = honeypoyTokenID
+		    tokenID = scriptID
        
                     # Check all data is valid before adding
 	            if (ipAddr != None and hostname != None and tokenID != None):
@@ -80,42 +80,50 @@ def deploy():
 
 	# connect to database
 	r.connect( "127.0.0.1", 28015).repl()
-	cursor = r.db("cloudsofhoney").table("scripts").run()
 
 	# If web request is pushing data to the server
 	if request.method == 'POST':
 	    # Get the script being requested
 	    scriptRequest = request.form['scriptSelect']
-
-	    # If the drop down menu is not create a new script get selected scripts contents
+	    
+	    # Create new scritp
+	    # Create a new script get selected scripts contents
+	    # Selected scripts contents
 	    if scriptRequest != "newScript":
 	        scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
-
-		deployCommand = "wget https://{0}/scripts/{2}/{1}".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
-	    else:
-		if "deploy_" not in request.form['scriptName']:
-		    deployCommand = 'Start script name with "deploy_"'
-		    scriptRequest = 'newScript'
-		    scriptContents = request.form['scriptBox']
+		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+	    elif scriptRequest == "newScript" and ( "submit_name" in request.form):
+	    	if "deploy_" not in request.form['scriptName']:
+                    deployCommand = 'Start script name with "deploy_"'
+                    scriptRequest = "newScript"
+                    scriptContents = request.form['scriptBox']	
 		else:
-		    scriptName = request.form['scriptName']
-		    scriptContents = request.form['scriptBox']
-		    sensorType = str(scriptName[scriptName.find('_')+1:-3])
-		    r.db("cloudsofhoney").table("scripts").insert({'scriptName':scriptName, 'sensorType': '', 'scriptContents':scriptContents }).run()
-		    
-		    scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptName).run())[0]
-		    scriptUID = scriptEntry['id']
-		    scriptContents = scriptEntry['scriptContents']
+                    # Insert script into database
+                    scriptName = request.form['scriptName']
+                    scriptRequest = scriptName
+                    scriptContents = request.form['scriptBox']
+                    sensorType = scriptName[scriptName.find('_')+1:-3]
+                    r.db("cloudsofhoney").table("scripts").insert({'scriptName':scriptName, 'sensorType': sensorType, 'scriptContents':scriptContents }).run()
 
-		    deployCommand = "wget https://{0}/scripts/{2}/{1}".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+                    # Get information for deploy command
+                    scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptName).run())[0]
+                    scriptUID = scriptEntry['id']
+                    scriptContents = scriptEntry['scriptContents']
+
+                    deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1}  && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptName, scriptUID )
+	    elif scriptRequest == "newScript" and ( "submit_name" not in request.form ):
+		deployCommand = ""
+        	scriptRequest = "newScript"
+        	scriptContents = ""
+
 	# Get all deploy scripts
+	cursor = r.db("cloudsofhoney").table("scripts").run()
 	for doc in cursor:
 	    if 'deploy_' in doc['scriptName']:
         	deployScripts.append(doc['scriptName'])
 
-	#data = open(fileLoc)
 	return render_template('deploy.html', deployScripts=deployScripts, deployCommand=deployCommand, fileContents=scriptContents, scriptRequest=scriptRequest )
 
 """
@@ -132,6 +140,10 @@ def sensors():
 @app.route('/kibana')
 def kibana():
     return redirect("https://localhost:9000", code=302)
+
+@app.route('/search')
+def search():
+    return render_template('search.html')
 
 @app.route('/contact')
 def contact():
