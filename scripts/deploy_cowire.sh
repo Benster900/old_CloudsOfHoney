@@ -70,6 +70,7 @@ yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycryp
 pip install --upgrade pip
 pip install configparser pyOpenSSL tftpy twisted virtualenv
 
+<<<<<<< HEAD
 # Create non-root cowrie user
 useradd cowire -d /home/cowrie -s /bin/bash -g users
 
@@ -90,9 +91,18 @@ cp cowrie.cfg.dist cowrie.cfg
 sed -i 's/cowrie.pid/cowire.pid/g' bin/cowrie
 sed -i 's/cowrie.pid/cowire.pid/g' start.sh
 sed -i 's/cowrie.pid/cowire.pid/g' stop.sh
+=======
+adduser cowrie
+
+cd /opt
+git clone https://github.com/micheloosterhof/cowrie.git
+cd cowire
+pip install -r requirements.txt
+>>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 # Fix cowire systemd service
 sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
+<<<<<<< HEAD
 sed -i 's/Group=cowrie/Group=users/g' doc/systemd/cowrie.service
 sed -i 's#/home/cowrie/cowrie#/opt/cowire#g' doc/systemd/cowrie.service
 sed -i 's#cowrie#cowire#g' doc/systemd/cowrie.service
@@ -103,6 +113,16 @@ chown cowire:users -R $cowireDir
 
 systemctl enable cowire.service
 systemctl start cowire.service
+=======
+sed -i 's/PIDFile=var/run/cowrie.pid/PIDFile=/home/cowrie/cowrie/var/run/cowrie.pid/g' doc/systemd/cowrie.service
+mv doc/systemd/cowrie.service /etc/systemd/system/cowrie.service
+
+#Fix permissions for cowrie user
+chown -R cowrie:users /opt/cowrie/
+
+systemctl enable cowrie.service
+systemctl start cowrie.service
+>>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 
 ################################## Install/Setup FirewallD ##################################

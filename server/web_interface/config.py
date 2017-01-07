@@ -10,6 +10,6 @@ _basedir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../..', 's
 MHN_SCRIPTS_SERVER_HOME = _basedir
 
 # Domain or IP address of server
-MHN_DOMAIN_NAME = '127.0.0.1'
+MHN_DOMAIN_NAME = 'cloud.localdomain'
 
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://<user>:<password>@127.0.0.1/fist-test'

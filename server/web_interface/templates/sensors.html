@@ -16,7 +16,6 @@ th, td {
     padding: 15px;
 }
 </style>
-{{sensors}}
 
 
 <center><table>
@@ -38,7 +37,7 @@ th, td {
       <td>{{ item['ipaddr'] }}</td>
       <td>{{ item['sensorType'] }}</td>
       <td>{{ item['id'] }}</td>
-      <td>{{ item['Attacks'] }}</td>
+      <td>{{ item['attacks'] }}</td>
     </tr>
   {% set count = count + 1 %}
   {% endfor %}
