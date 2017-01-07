@@ -38,6 +38,30 @@ A seperate partition is created on the system with the execution permissions tur
 ### Rclone
 My university has Google Apps so I get "unlimited" Google Drive space. I decided to store all my samples on Google Drive rather than pay for Amazon S3.
 
+
+# Alerts
+## SMTP Alerts
+
+
+## Elastalert
+
+
+
+## Honeypots
+### Cowire
+### Elastichoney
+
+## Network Sensors
+### p0f
+
+
+### Bro Network Security Monitor
+
+
+### Snort Network IDS/IPS
+
+
+
 # Adding a new honeypot
 ### Adding a new honeypot or network sensor is relatively simple.
 1. Create a deploy script named "deploy_<honeypot/sensor>.sh"

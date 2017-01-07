@@ -32,10 +32,17 @@ yum update -y && yum upgrade -y
 yum install git vim -y
 
 ################################## Install/Setup p0f ##################################
-yum group install "Development Tools" -y
-yum install libpcap libpcap-devel -y
+#yum group install "Development Tools" -y
+#yum install libpcap libpcap-devel -y
 git clone https://github.com/p0f/p0f.git
-cd p0f
+#cd p0f
+#./build.sh
+
+################################## Install/Setup p0f + JSON ##################################
+yum group install "Development Tools" -y
+yum install libpcap libpcap-devel json-c-devel json-devel-y
+git clone https://github.com/obormot/p0f-JSON.git
+cd p0f-JSON.git
 ./build.sh
 
 ################################## Install/Setup Filebeat ##################################

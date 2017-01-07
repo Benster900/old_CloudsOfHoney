@@ -20,12 +20,6 @@ fi
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
   yum update -y && yum upgrade -y
-  
-  # NTP Time Sync
-  yum install ntp ntpdate ntp-doc -y
-  systemctl enable ntpd
-  systemctl start ntpd
-  ntpdate pool.ntp.org || true
 else
   echo "Please use CentOS to run this software :)"
 fi
@@ -52,58 +46,76 @@ else
 fi
 
 
-
 # Update system
 yum update -y && yum upgrade -y
 yum install git vim curl -y
 
-################################## Change SSHd port ##################################
-sed -i 's/#Port 22/Port 6969/g' /etc/ssh/sshd_config
-sed -i 's/Port 22/Port 6969/g' /etc/ssh/sshd_config
-yum -y install policycoreutils-python
-semanage port -m -t ssh_port_t -p tcp 6969
-systemctl restart sshd
 
-################################## Install/Setup Cowire ##################################
-yum install -y epel-release -y
-yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycrypto gmp gmp-devel mpfr-devel libmpc-devel -y
-pip install --upgrade pip
-pip install configparser pyOpenSSL tftpy twisted virtualenv
+################################## Install/Seutp elastichoney ##################################
+# Create user
+useradd elastichoney -d /home/elastichoney -s /bin/bash -g users
 
-# Create non-root cowrie user
-useradd cowire -d /home/cowrie -s /bin/bash -g users
-
-# Get the cowrie source
+# Download elastichoney
 cd /opt
-git clone https://github.com/micheloosterhof/cowrie.git
-mv cowrie cowire
-cd /opt/cowire/
+git clone https://github.com/jordan-wright/elastichoney.git
+cd /opt/elastichoney
+eleasticHoneyDir=$(pwd)
 
-cowireDir=$(pwd)
+# install and setup golang
+yum install golang -y
+export GOROOT=/usr/bin
+export GOPATH=$eleasticHoneyDir
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+go get || true
+go build
 
-virtualenv $cowireDir/cowire-env
-. $cowireDir/cowire-env/bin/activate
-pip install -r $cowireDir/requirements.txt
-cp cowrie.cfg.dist cowrie.cfg
+# Create log file
+mkdir logs
 
-# Fix cowire pid file
-sed -i 's/cowrie.pid/cowire.pid/g' bin/cowrie
-sed -i 's/cowrie.pid/cowire.pid/g' start.sh
-sed -i 's/cowrie.pid/cowire.pid/g' stop.sh
+# Make start file
+cat > start.sh << EOF
+#!/bin/bash << EOF
+./elastichoney -config="config.json" -log="logs/elastichoney.log" &
+pid=\$!
+echo \$pid
+echo \$pid > elastichoney.pid
+EOF
+chmod +x start.sh
 
-# Fix cowire systemd service
-sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
-sed -i 's/Group=cowrie/Group=users/g' doc/systemd/cowrie.service
-sed -i 's#/home/cowrie/cowrie#/opt/cowire#g' doc/systemd/cowrie.service
-sed -i 's#cowrie#cowire#g' doc/systemd/cowrie.service
-cp doc/systemd/cowrie.service /etc/systemd/system/cowire.service
+# Make stop file
+cat > stop.sh << EOF
+#!/bin/bash
+pid=$(cat elastichoney.pid)
+kill -9 \$pid
+rm -rf elastichoney.pid
+EOF
+chmod +x stop.sh
 
 #Fix permissions for cowrie user
-chown cowire:users -R $cowireDir
+chown elastichoney:users -R $eleasticHoneyDir
 
-systemctl enable cowire.service
-systemctl start cowire.service
+# Systemd
+cat > /etc/systemd/system/elastichoney.service << EOF
+[Unit]
+Description=elastichoneyHoneypot
+After=network.target
+#Wants=syslog.target
+#Wants=mysql.service
 
+[Service]
+Type=forking
+User=elastichoney
+Group=users
+ExecStart=$eleasticHoneyDir/start.sh
+ExecStop=$eleasticHoneyDir/stop.sh
+ExecReload=$eleasticHoneyDir/stop.sh && sleep 10 && $eleasticHoneyDir/start.sh
+WorkingDirectory=$eleasticHoneyDir
+Restart=on-failure
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 ################################## Install/Setup FirewallD ##################################
 yum install firewalld -y || true
@@ -113,10 +125,9 @@ systemctl enable firewalld || true
 
 
 firewall-cmd --zone=public --add-masquerade --permanent
-firewall-cmd --zone=public --add-forward-port=port=22:proto=tcp:toport=2222 --permanent
-firewall-cmd --zone=public --permanent --add-port=6969/tcp
+firewall-cmd --zone=public --permanent --add-port=9200/tcp
+firewall-cmd --zone=public --permanent --add-port=22/tcp
 firewall-cmd --reload
-
 
 
 ################################## Install/Setup Filebeat ##################################
@@ -124,14 +135,14 @@ firewall-cmd --reload
 if rpm -qa | grep -qw filebeat; then
 
 # Just add config file
-cat > /etc/filebeat/conf.d/cowire.yml << EOF
+cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
 filebeat.prospectors:
 - paths:
-    - /opt/cowire/log/*.json
-  fields:
-    sensorType: honeypot
-    sensorID: $result
-  document_type: cowire
+    - /opt/elastichoney/logs/*.log
+fields:
+  sensorID: $result
+  sensorType: honeypot
+document_type: elastichoney
 EOF
 
 else
@@ -164,15 +175,15 @@ output.logstash:
   hosts: ["$1:5044"]
 EOF
 
-#
-cat > /etc/filebeat/conf.d/cowire.yml << EOF
+# Just add config file
+cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
 filebeat.prospectors:
 - paths:
-    - /opt/cowire/log/*.json
-  fields:
-    sensorID: $result
-    sensorType: honeypot
-  document_type: cowire
+    - /opt/elastichoney/logs/*.log
+fields:
+  sensorID: $result
+  sensorType: honeypot
+document_type: elastichoney
 EOF
 
 

@@ -30,46 +30,82 @@ Allows curl and wget to retireve scripts
 @app.route('/script/<string:scriptName>', methods = ['GET'])
 def script(scriptName):
 	if request.method == 'GET':
-		path = os.path.abspath(os.path.join(MHN_SCRIPTS_SERVER_HOME, scriptName))
-		try:
-			data = open(path,'r').read()
-		except IOError:
-			data = "File does not exist"
-		return data
+		# connect to database
+		r.connect( "127.0.0.1", 28015).repl()
+		cursor = r.db("cloudsofhoney").table("scripts").run()
+
+		# Get script contents
+		scriptContents = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]['scriptContents']
+
+		return scriptContents
 
 """
+Add new sensor to database
 """
-@app.route('/deploy/newsensor/<string:token>', methods=['GET','POST'])
-def newSensor():
+@app.route('/deploy/newsensor/<string:script> <string:tokenID> ', methods=['GET','POST'])
+def newSensor(script,tokenID):
+	if request.method == 'GET':
+		# connect to database
+		r.connect( "127.0.0.1", 28015).repl()
+		cursor = r.db("cloudsofhoney").table("scripts").run()
 
-	return
+		ipAddr = request.remote_addr
+		hostname = ''
+		sensorType = ''
+
+		# Add new entry to sensor table
+		r.db("cloudsofhoney").table("sensors").insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
+
+		# Get sensor UID
+		sensorID = list(r.db("cloudsofhoney").table("sensors").filter({r.row["hostname"] == 'hostname', r.row["ipaddr"] == 'ipAddr', r.row["sensorType"] == 'sensorType' }).run())[0]['id']
+
+	return sensorID
 
 """
 Deploy menu tab to select script to deploy new network sensor or honeypot
 """
 @app.route('/deploy', methods=['GET','POST'])
 def deploy():
-	import os
 	deployScripts = []
 	deployCommand = ""
 	fileContents = ""
 	scriptRequest = ""
 
+	# connect to database
+	r.connect( "127.0.0.1", 28015).repl()
+	cursor = r.db("cloudsofhoney").table("scripts").run()
+
+	# If web request is pushing data to the server
 	if request.method == 'POST':
+		# Get the script being requested
 		scriptRequest = request.form['scriptSelect']
 		# If the drop down menu is not create a new script get selected scripts contents
 		if scriptRequest != "newScript":
-			fileContents = open(os.path.abspath(os.path.join(MHN_SCRIPTS_SERVER_HOME, scriptRequest))).read()
-			deployCommand = "wget https://{0}/scripts/{1}".format(MHN_DOMAIN_NAME, scriptRequest)
+			scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
+
+			scriptContents = scriptEntry['scriptContents']
+			scriptUID = scriptEntry['id']
+
+			deployCommand = "wget https://{0}/scripts/{1} {2}".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+		else:
+			scriptName = request.form['scriptName']
+			if 'deploy_' not in scriptName:
+				flash('Please include "deploy_" in script name for honeypot or network sensor')
+			else:
+				flash("Added script to database")
 
 
-	for file in os.listdir(MHN_SCRIPTS_SERVER_HOME):
-		if 'deploy' in file:
-			deployScripts.append(file)
+	# Get all deploy scripts
+	for doc in cursor:
+		if 'deploy_' in doc['scriptName']:
+        	deployScripts.append(doc['scriptName'])
 
 	#data = open(fileLoc)
 	return render_template('deploy.html', deployScripts=deployScripts, deployCommand=deployCommand, fileContents=fileContents, scriptRequest=scriptRequest )
 
+"""
+Returns a list of honeypots and network sensors deployed.
+"""
 @app.route('/sensors')
 def sensors():
 	r.connect( "172.16.0.161", 28015).repl()

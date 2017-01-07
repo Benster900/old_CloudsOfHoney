@@ -67,7 +67,7 @@ read -p "Create OpenSSL cert or Let's Encrypt Cert [L/O]" -n 1 -r
 if [[ $REPLY =~ ^[Oo]$ ]]; then
 	mkdir /etc/nginx/ssl
 	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
-  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
 server {
@@ -122,7 +122,7 @@ echo 'server {
 
 	read -p "Enter domain name: " -e domainName
 	sudo certbot certonly -a webroot --webroot-path=/usr/share/nginx/html -d $domainName -d www.$domainName
-	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 cat > /etc/nginx/conf.d/kibana.conf << EOF
 server {
@@ -200,41 +200,18 @@ sudo wget "http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.
 sudo gunzip *.dat.gz
 
 
-echo 'input {
-  beats {
-    port => 5044
-    ssl => false
-  }
-}
-' | sudo tee /etc/logstash/conf.d/02-beats-input.conf
+#### Logstash input ####
+cat ../server/logstash/02-beats-input.conf >> /etc/logstash/conf.d/02-beats-input.conf
 
+#### Honeypot filters ####
+cat ../server/logstash/11-honeypot-filter.conf >> /etc/logstash/conf.d/11-honeypot-filter.conf
+
+#### Network senesor filters ####
+cat ../server/logstash/12-network-sensors-filters.conf >> /etc/logstash/conf.d/12-network-sensors-filters.conf
 
 #### Syslog filter ####
-echo 'filter {
-  if [type] == "syslog" {
-    grok {
-      match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
-      add_field => [ "received_at", "%{@timestamp}" ]
-      add_field => [ "received_from", "%{host}" ]
-    }
-    syslog_pri { }
-    date {
-      match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-    }
-  }
-}
-' | sudo tee /etc/logstash/conf.d/10-syslog-filter.conf
+cat ../server/logstash/10-syslog-filter.conf >> /etc/logstash/conf.d/10-syslog-filter.conf
 
-
-#### Elasticsearch output ####
-echo 'output {
-  elasticsearch {
-    hosts => ["http://localhost:9200"]
-    index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
-    document_type => "%{[@metadata][type]}"
-  }
-}
-' | sudo tee /etc/logstash/conf.d/30-elasticsearch-output.conf
 
 # Load Kibana dashboards
 cd ~
