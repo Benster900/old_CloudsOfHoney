@@ -25,7 +25,7 @@ def homepage():
 	return render_template('homepage.html')
 
 """
-retrieve public SSH key from local machine
+Retrieve public SSH key from local machine
 """
 @app.route('/sshkeyauthentication/<string:sensorID>', methods = ['GET'])
 def sshkeyauthentication(sensorID):
@@ -33,12 +33,12 @@ def sshkeyauthentication(sensorID):
 		# connect to database
 		r.connect( "127.0.0.1", 28015).repl()
 
-		if r.db("cloudsofhoney").table("sensors").get(sensorID).run()
+		if r.db("cloudsofhoney").table("sensors").get(sensorID).run():
 			import os
 			sshkey = open('/home/cloudsofhoney/.ssh/id_rsa.pub','r').read()
 			return sshkey
 
-		return "Not a valid known sensor please register sensor :)"
+		return "Not a valid known sensor please register sensor."
 
 """
 Allows curl and wget to retireve scripts

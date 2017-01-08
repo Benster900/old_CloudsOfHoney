@@ -20,6 +20,7 @@ fi
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
   yum update -y && yum upgrade -y
+  yum install git vim curl -y
 
   # NTP Time Sync
   yum install ntp ntpdate ntp-doc -y
@@ -42,7 +43,7 @@ hostName=$(hostname)
 
 
 # Add new sensor to management nide
-result=$(curl -X POST http://$1:5000/newsensor/`hostname`/$2)
+result=$(curl -X POST http://$1/newsensor/`hostname`/$2)
 
 if [ $result == "Honeypot not regisitered bad data*"]; then
   echo $result
@@ -51,11 +52,26 @@ else
   echo "Honeypot is registered with the following sensorID: $result"
 fi
 
+
+# Create cloudsofhoney user and add ssh pub key for ansible retrieval
 sshPubKey=$(curl -X GET http://$1/sshkeyauthentication/$result/)
 
-# Update system
-yum update -y && yum upgrade -y
-yum install git vim curl -y
+if [ $sshPubKey = "Not a valid known sensor please register sensor." ]; then
+  echo $sshPubKey
+  exit 1
+else
+    echo $sshPubKey
+
+    # Create cloudsofhoney user
+    adduser cloudsofhoney || true
+
+    # Create .ssh directory and add ssh pub key
+    mkdir -p /home/cloudsofhoney/.ssh || true
+    chmod 700 /home/cloudsofhoney/.ssh || true
+    echo $sshPubKey >> /home/cloudsofhoney/.ssh/authorized_keys || true
+    chmod 700 /home/cloudsofhoney/.ssh || true
+fi
+
 
 ################################## Change SSHd port ##################################
 sed -i 's/#Port 22/Port 6969/g' /etc/ssh/sshd_config
