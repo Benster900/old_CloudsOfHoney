@@ -2,11 +2,11 @@
 I have always been a fan of the Modern Honey Network project but I always felt it lacked certain features. This is a fun project to develop my own honeypot network using MHN as a template. The big differences between my system and theres is an ELK backend, MariaDB backend, Logstash instead of hpfeeds, and malware retrieval and statistics. I mean no disrespect to the creators of the MHN project.
 
 # Installation
-git clone https://github.com/Benster900/CloudsOfHoneyManagementNode.git /opt/CloudsOfHoneyManagementNode
+`git clone https://github.com/Benster900/CloudsOfHoneyManagementNode.git /opt/CloudsOfHoneyManagementNode`
 
-cd /opt/CloudsOfHoneyManagementNode
+`cd /opt/CloudsOfHoneyManagementNode`
 
-./setupScript
+`./setupScript`
 
 ## ELK stack
 ### Logstash
@@ -24,9 +24,15 @@ cd /opt/CloudsOfHoneyManagementNode
 
 
 ## Ansible
+### SSH Keys
+These keys can be updated as needed because the Flask app will read the ssh pub key from disk. However all honeypots need the new pub key.
+
+`Location: /home/cloudsofhoney/.ssh/[id_rsa.pub, id_rsa]`
+
 ### crontab
 Mechanism used to connect to all honeypots and retrieve data. This system is very simplistic cause honeypots only need the ssh pub_key.
-Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i flag runs a python script which pulls down all sensor IP addresses from the RethinkDB database. It then runs the retrieval script "malware_retrieval.yml" on each sensor
+Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i flag runs a python script which pulls down all sensor IP addresses from the RethinkDB database. It then runs the retrieval script "malware_retrieval.yml" on each sensor.
+
 `00 00 * * * cloudsofhoney /usr/bin/ansible-playbook /etc/ansible/ansible_malware_retrieval.yml -i /etc/ansible/ansible_get_hosts.py > /home/cloudsofhoney/cron.output`
 
 

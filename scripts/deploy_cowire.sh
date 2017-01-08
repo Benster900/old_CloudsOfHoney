@@ -20,7 +20,7 @@ fi
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
   yum update -y && yum upgrade -y
-  
+
   # NTP Time Sync
   yum install ntp ntpdate ntp-doc -y
   systemctl enable ntpd
@@ -51,7 +51,7 @@ else
   echo "Honeypot is registered with the following sensorID: $result"
 fi
 
-
+sshPubKey=$(curl -X GET http://$1/sshkeyauthentication/$result/)
 
 # Update system
 yum update -y && yum upgrade -y
@@ -70,50 +70,15 @@ yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycryp
 pip install --upgrade pip
 pip install configparser pyOpenSSL tftpy twisted virtualenv
 
-<<<<<<< HEAD
-# Create non-root cowrie user
-useradd cowire -d /home/cowrie -s /bin/bash -g users
-
-# Get the cowrie source
-cd /opt
-git clone https://github.com/micheloosterhof/cowrie.git
-mv cowrie cowire
-cd /opt/cowire/
-
-cowireDir=$(pwd)
-
-virtualenv $cowireDir/cowire-env
-. $cowireDir/cowire-env/bin/activate
-pip install -r $cowireDir/requirements.txt
-cp cowrie.cfg.dist cowrie.cfg
-
-# Fix cowire pid file
-sed -i 's/cowrie.pid/cowire.pid/g' bin/cowrie
-sed -i 's/cowrie.pid/cowire.pid/g' start.sh
-sed -i 's/cowrie.pid/cowire.pid/g' stop.sh
-=======
 adduser cowrie
 
 cd /opt
 git clone https://github.com/micheloosterhof/cowrie.git
 cd cowire
 pip install -r requirements.txt
->>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 # Fix cowire systemd service
 sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
-<<<<<<< HEAD
-sed -i 's/Group=cowrie/Group=users/g' doc/systemd/cowrie.service
-sed -i 's#/home/cowrie/cowrie#/opt/cowire#g' doc/systemd/cowrie.service
-sed -i 's#cowrie#cowire#g' doc/systemd/cowrie.service
-cp doc/systemd/cowrie.service /etc/systemd/system/cowire.service
-
-#Fix permissions for cowrie user
-chown cowire:users -R $cowireDir
-
-systemctl enable cowire.service
-systemctl start cowire.service
-=======
 sed -i 's/PIDFile=var/run/cowrie.pid/PIDFile=/home/cowrie/cowrie/var/run/cowrie.pid/g' doc/systemd/cowrie.service
 mv doc/systemd/cowrie.service /etc/systemd/system/cowrie.service
 
@@ -122,7 +87,6 @@ chown -R cowrie:users /opt/cowrie/
 
 systemctl enable cowrie.service
 systemctl start cowrie.service
->>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 
 ################################## Install/Setup FirewallD ##################################
