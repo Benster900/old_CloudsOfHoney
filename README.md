@@ -24,7 +24,11 @@ cd /opt/CloudsOfHoneyManagementNode
 
 
 ## Ansible
+### crontab
 Mechanism used to connect to all honeypots and retrieve data. This system is very simplistic cause honeypots only need the ssh pub_key.
+Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i flag runs a python script which pulls down all sensor IP addresses from the RethinkDB database. It then runs the retrieval script "malware_retrieval.yml" on each sensor
+`00 00 * * * cloudsofhoney /usr/bin/ansible-playbook /etc/ansible/ansible_malware_retrieval.yml -i /etc/ansible/ansible_get_hosts.py > /home/cloudsofhoney/cron.output`
+
 
 ## RethinkDB
 A neat new NoSQL database that I am tinkering with.

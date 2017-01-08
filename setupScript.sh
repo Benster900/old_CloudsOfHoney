@@ -29,11 +29,11 @@ cloudsDir=`dirname "$(readlink -f "$0")"`
 SCRIPTS="$cloudsDir/scripts/"
 
 # Create user
-#useradd cloudsofhoney
+useradd cloudsofhoney
 
 # Change permissions
-#chmod +x scripts/*
-#chown cloudsofhoney:nginx -R $cloudsDir
+chmod +x scripts/*
+chown cloudsofhoney:nginx -R $cloudsDir
 
 
 cd $SCRIPTS
