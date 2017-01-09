@@ -86,14 +86,24 @@ def deploy():
 	    # Get the script being requested
 	    scriptRequest = request.form['scriptSelect']
 	    
-	    # Create new scritp
-	    # Create a new script get selected scripts contents
 	    # Selected scripts contents
-	    if scriptRequest != "newScript":
+	    if scriptRequest != "newScript" and ( "submit_name" not in request.form ):
 	        scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
 		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+	    # Update existing script 
+	    elif scriptRequest != "newScript" and ( "submit_name" in request.form ):
+		scriptContents = request.form['scriptBox']
+		r.db("cloudsofhoney").table("scripts").filter({"scriptName": scriptRequest}).update({"scriptContents": scriptContents}).run()	   
+
+		#
+		scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
+		scriptContents = scriptEntry['scriptContents']
+		scriptUID = scriptEntry['id']
+                deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+ 
+	    # Create new script
 	    elif scriptRequest == "newScript" and ( "submit_name" in request.form):
 	    	if "deploy_" not in request.form['scriptName']:
                     deployCommand = 'Start script name with "deploy_"'
@@ -113,6 +123,7 @@ def deploy():
                     scriptContents = scriptEntry['scriptContents']
 
                     deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1}  && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptName, scriptUID )
+	    # Select new script but DO NOT create a script without content
 	    elif scriptRequest == "newScript" and ( "submit_name" not in request.form ):
 		deployCommand = ""
         	scriptRequest = "newScript"
