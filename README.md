@@ -16,11 +16,19 @@ I have always been a fan of the Modern Honey Network project but I always felt i
 
 
 ### Kibana
+#### Indexes
+`Network Sensor - p0f : p0f-filebeat--%{+YYYY.MM.dd}
+Network Sensor - Bro: bro-filebeat--%{+YYYY.MM.dd}
+Network Sensor - Snort: snort-filebeat--%{+YYYY.MM.dd}
+Honeypot - Cowire: cowire-filebeat--%{+YYYY.MM.dd}
+Honeypot - Elastichoney: elastichoney-filebeat--%{+YYYY.MM.dd}
+`
 
 ### Filebeat
 
 
 ### Elastalert
+
 
 
 ## Ansible
@@ -40,6 +48,9 @@ Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i
 A neat new NoSQL database that I am tinkering with.
 
 ## Malware Database
+### Local Malware
+Ansible is used to retrieve malware from each sensor and store it locally for 24 hours. Within this 24 hour window the malware is processes by a binary analyzer.
+`Location: /srv/malwareSamples/<date>`
 
 
 ## Malware Partition
@@ -69,6 +80,8 @@ My university has Google Apps so I get "unlimited" Google Drive space. I decided
 
 
 ### Snort Network IDS/IPS
+service: snort is the actual NIDS for the local system.
+service: snortLogging uses u2json to convert unified2 to json.
 
 
 

@@ -20,6 +20,7 @@ fi
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
   yum update -y && yum upgrade -y
+  yum install git vim curl -y
 
   # NTP Time Sync
   yum install ntp ntpdate ntp-doc -y
@@ -50,7 +51,6 @@ if [ $result == "Honeypot not regisitered bad data*"]; then
 else
   echo "Honeypot is registered with the following sensorID: $result"
 fi
-
 
 
 # Update system

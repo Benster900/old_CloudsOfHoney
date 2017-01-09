@@ -20,6 +20,13 @@ fi
 if [ -f /etc/redhat-release ]; then
   echo "[`date`] ========= Installing updates ========="
   yum update -y && yum upgrade -y
+  yum install git vim curl -y
+
+  # NTP Time Sync
+  yum install ntp ntpdate ntp-doc -y
+  systemctl enable ntpd
+  systemctl start ntpd
+  ntpdate pool.ntp.org || true
 else
   echo "Please use CentOS to run this software :)"
 fi
@@ -36,7 +43,7 @@ hostName=$(hostname)
 
 
 # Add new sensor to management nide
-result=$(curl -X POST http://$1:5000/newsensor/`hostname`/$2)
+result=$(curl -X POST http://$1/newsensor/`hostname`/$2)
 
 if [ $result == "Honeypot not regisitered bad data*"]; then
   echo $result
@@ -46,9 +53,25 @@ else
 fi
 
 
-# Update system
-yum update -y && yum upgrade -y
-yum install git vim curl -y
+# Create cloudsofhoney user and add ssh pub key for ansible retrieval
+sshPubKey=$(curl -X GET http://$1/sshkeyauthentication/$result)
+
+if [ $sshPubKey == "Not a valid known sensor please register sensor." ]; then
+  echo $sshPubKey
+  exit 1
+else
+    echo $sshPubKey
+
+    # Create cloudsofhoney user
+    adduser cloudsofhoney || true
+
+    # Create .ssh directory and add ssh pub key
+    mkdir -p /home/cloudsofhoney/.ssh || true
+    chmod 700 /home/cloudsofhoney/.ssh || true
+    echo $sshPubKey >> /home/cloudsofhoney/.ssh/authorized_keys || true
+    chmod 700 /home/cloudsofhoney/.ssh || true
+    chown cloudsofhoney:cloudsofhoney -R /home/cloudsofhoney
+fi
 
 
 ################################## Install/Seutp elastichoney ##################################
@@ -63,9 +86,16 @@ eleasticHoneyDir=$(pwd)
 
 # install and setup golang
 yum install golang -y
-export GOROOT=/usr/bin
-export GOPATH=$eleasticHoneyDir
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+echo ‘export GOROOT=/usr/lib/golang
+export GOBIN=$GOROOT/bin
+export GOPATH=/home/golang
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin’ > /etc/profile.d/go.sh
+
+source ~/.bashrc
+source /etc/profile
+ldconfig
+
 go get || true
 go build
 
@@ -74,25 +104,25 @@ mkdir logs
 
 # Make start file
 cat > start.sh << EOF
-#!/bin/bash << EOF
+#!/bin/bash
 ./elastichoney -config="config.json" -log="logs/elastichoney.log" &
 pid=\$!
 echo \$pid
 echo \$pid > elastichoney.pid
 EOF
-chmod +x start.sh
 
 # Make stop file
 cat > stop.sh << EOF
 #!/bin/bash
-pid=$(cat elastichoney.pid)
+pid=\$(cat elastichoney.pid)
 kill -9 \$pid
 rm -rf elastichoney.pid
 EOF
-chmod +x stop.sh
 
 #Fix permissions for cowrie user
 chown elastichoney:users -R $eleasticHoneyDir
+su elastichoney -c "chmod +x start.sh"
+su elastichoney -c "chmod +x stop.sh"
 
 # Systemd
 cat > /etc/systemd/system/elastichoney.service << EOF
@@ -117,6 +147,10 @@ TimeoutSec=300
 WantedBy=multi-user.target
 EOF
 
+systemctl enable elastichoney
+systemctl start elastichoney
+
+
 ################################## Install/Setup FirewallD ##################################
 yum install firewalld -y || true
 
@@ -138,11 +172,11 @@ if rpm -qa | grep -qw filebeat; then
 cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
 filebeat.prospectors:
 - paths:
-    - /opt/elastichoney/logs/*.log
-fields:
-  sensorID: $result
-  sensorType: honeypot
-document_type: elastichoney
+  - /opt/elastichoney/logs/elastichoney.log
+  fields:
+    sensorID: $result
+    sensorType: honeypot
+  document_type: elastichoney
 EOF
 
 else
@@ -179,11 +213,11 @@ EOF
 cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
 filebeat.prospectors:
 - paths:
-    - /opt/elastichoney/logs/*.log
-fields:
-  sensorID: $result
-  sensorType: honeypot
-document_type: elastichoney
+  - /opt/elastichoney/logs/elastichoney.log
+  fields:
+    sensorID: $result
+    sensorType: honeypot
+  document_type: elastichoney
 EOF
 
 

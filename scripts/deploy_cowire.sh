@@ -54,9 +54,9 @@ fi
 
 
 # Create cloudsofhoney user and add ssh pub key for ansible retrieval
-sshPubKey=$(curl -X GET http://$1/sshkeyauthentication/$result/)
+sshPubKey=$(curl -X GET http://$1/sshkeyauthentication/$result)
 
-if [ $sshPubKey = "Not a valid known sensor please register sensor." ]; then
+if [ $sshPubKey == "Not a valid known sensor please register sensor." ]; then
   echo $sshPubKey
   exit 1
 else
@@ -70,6 +70,7 @@ else
     chmod 700 /home/cloudsofhoney/.ssh || true
     echo $sshPubKey >> /home/cloudsofhoney/.ssh/authorized_keys || true
     chmod 700 /home/cloudsofhoney/.ssh || true
+    chown cloudsofhoney:cloudsofhoney -R /home/cloudsofhoney
 fi
 
 
@@ -86,23 +87,35 @@ yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycryp
 pip install --upgrade pip
 pip install configparser pyOpenSSL tftpy twisted virtualenv
 
-adduser cowrie
+adduser cowire
 
 cd /opt
 git clone https://github.com/micheloosterhof/cowrie.git
-cd cowire
+mv cowrie cowire
+cd /opt/cowire
+
+# Install virtualenv
+pip install virtualenv
+virtualenv cowire-env
 pip install -r requirements.txt
 
+# Copy config
+cp cowrie.cfg.dist cowrie.cfg
+
 # Fix cowire systemd service
+cp doc/systemd/cowrie.service doc/systemd/cowrie.service.bak
+sed -i 's#cowrie#cowire#g' doc/systemd/cowrie.service
+sed -i 's#/home/cowire/cowire#/opt/cowire#g' doc/systemd/cowrie.service
 sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
-sed -i 's/PIDFile=var/run/cowrie.pid/PIDFile=/home/cowrie/cowrie/var/run/cowrie.pid/g' doc/systemd/cowrie.service
-mv doc/systemd/cowrie.service /etc/systemd/system/cowrie.service
+sed -i 's#PIDFile=/opt/cowire/var/run/cowire.pid#PIDFile=/opt/cowire/var/run/cowrie.pid#g' doc/systemd/cowrie.service
+
+cp doc/systemd/cowrie.service /etc/systemd/system/cowire.service
 
 #Fix permissions for cowrie user
-chown -R cowrie:users /opt/cowrie/
+chown -R cowire:users /opt/cowire/
 
-systemctl enable cowrie.service
-systemctl start cowrie.service
+systemctl enable cowire.service
+systemctl start cowire.service
 
 
 ################################## Install/Setup FirewallD ##################################

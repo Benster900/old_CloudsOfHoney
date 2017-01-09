@@ -55,6 +55,7 @@ fi
 # Update system
 yum update -y && yum upgrade -y
 yum install git vim curl -y
+yum install epel-release -y
 
 ################################## Install/Setup Snort ##################################
 snortInterface=$(ip a | grep '2:' | grep 'en' | awk '{print $2}' |rev | cut -c 2- | rev)
@@ -94,7 +95,8 @@ sed -i 's#var WHITE_LIST_PATH ../rules#var WHITE_LIST_PATH /etc/snort/rules#g' /
 sed -i 's#var BLACK_LIST_PATH ../rules#var BLACK_LIST_PATH /etc/snort/rules#g' /etc/snort/snort.conf
 
 # Configure logging
-sed -i 's/output unified2: filename merged.log, limit 128, nostamp, mpls_event_types, vlan_event_types/output unified2: filename snort.log, limit 128/g' /etc/snort/snort.conf
+sed -i 's/# output unified2: filename snort.log, limit 128, nostamp/output unified2: filename snort.log, limit 128, nostamp/g' /etc/snort/snort.conf
+sed -i 's/output unified2: filename merged.log, limit 128, nostamp, mpls_event_types, vlan_event_types/output unified2: filename snort.log, limit 128, nostamp/g' /etc/snort/snort.conf
 
 # Enable rule sets
 sed -i 's?#include $RULE_PATH/local.rules?include $RULE_PATH/local.rules?g' /etc/snort/snort.conf
@@ -119,9 +121,9 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-User=snortlogginguser
+User=snort
 Group=snort
-ExecStart=/usr/bin/idstools-u2json  --snort-conf /etc/snort/snort.conf --directory /var/log/snort --prefix alert --follow  --output /var/log/snort/alerts.json
+ExecStart=/usr/bin/idstools-u2json  --snort-conf /etc/snort/snort.conf --directory /var/log/snort --prefix snort --follow  --output /var/log/snort/snort.json
 
 [Install]
 WantedBy=multi-user.target
@@ -158,11 +160,11 @@ cat > /etc/filebeat/conf.d/snort.yml << EOF
 filebeat.prospectors:
 - input_type: log
   paths:
-    - /var/log/snort/*
+    - /var/log/snort/*.json
   fields:
     sensorID: $result
     sensorType: networksensor
-  document_type: SnortIDPS
+  document_type: snort
 EOF
 
 else
@@ -200,11 +202,11 @@ cat > /etc/filebeat/conf.d/snort.yml << EOF
 filebeat.prospectors:
 - input_type: log
   paths:
-    - /var/log/snort/*
+    - /var/log/snort/*.json
   fields:
     sensorID: $result
     sensorType: networksensor
-  document_type: SnortIDPS
+  document_type: snort
 EOF
 
 

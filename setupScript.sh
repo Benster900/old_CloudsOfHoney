@@ -40,22 +40,25 @@ cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
 echo "[`date`] ========= Setup config file ========="
-#read -p "Enter domain name: " -e domainName
-#hostnamectl set-hostname $domainName
-#sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
+read -p "Enter domain name: " -e domainName
+hostnamectl set-hostname $domainName
+sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
 
 echo "[`date`] ========= Installing postfix ========="
-#source install_smtp.sh
+source install_smtp.sh
 
 echo "[`date`] ========= Installing Ansible ========="
-#./install_ansible.sh
+./install_ansible.sh
 
 echo "[`date`] ========= Installing ELK stack ========="
-#./install_elkstack.sh
+./install_elkstack.sh
+
+echo "[`date`] ========= Installing Elastalert ========="
+./install_elastalert.sh
 
 echo "[`date`] ========= Installing MariaDB ========="
-#./install_database.sh
-#python install_init_databases.py $SCRIPTS
+./install_database.sh
+python install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="
 source install_management_web_interface.sh

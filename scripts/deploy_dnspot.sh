@@ -29,8 +29,54 @@ fi
 
 # Update system
 yum update -y && yum upgrade -y
-yum install git vim  -y
+yum install git vim  openssl-devel -y
 yum groupinstall 'Development Tools' -y
+
+# Build protobuf
+git clone https://github.com/google/protobuf
+cd protobuf/
+./autogen.sh
+./configure --prefix=/usr
+make
+make check
+make install
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+ldconfig # refresh shared library cache.
+cd ..
+
+# Build protobuf-c
+git clone https://github.com/protobuf-c/protobuf-c
+cd protobuf-c/
+./autogen.sh
+./configure --prefix=/usr
+make
+make install
+cd ..
+
+# Build fstrm
+yum install epel-release -y
+yum install fstrm fstrm-devel -y
+
+# Get and build Bind9
+git clone https://source.isc.org/git/bind9.git
+cd bind9
+./configure --prefix=/usr/local/named --enable-dnstap
+make
+make install
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #################################### Get libraries ####################################
 git clone https://github.com/google/protobuf
@@ -111,7 +157,7 @@ cd ..
 #################################### Install/Setup Bind + DNStap ####################################
 git clone https://source.isc.org/git/bind9.git
 cd bind9
-./configure --enable-dnstap
+./configure --prefix=/usr/local/named --enable-dnstap
 make
 make install
 
@@ -121,6 +167,36 @@ mkdir -p /var/log/dnstap
 #dnstap{all;};
 #dnstap-output file "/var/log/dnstap/dnstap.log"
 #EOF
+
+
+#################################### Bind9 systemD service ####################################
+cat > /etc/systemd/system/bind.service << EOF
+[Unit]
+Description=Berkeley Internet Name Domain (DNS)
+Wants=nss-lookup.target
+Wants=named-setup-rndc.service
+Before=nss-lookup.target
+After=network.target
+After=named-setup-rndc.service
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/sysconfig/named
+Environment=KRB5_KTNAME=/etc/named.keytab
+PIDFile=/run/named/named.pid
+
+ExecStartPre=/bin/bash -c 'if [ ! "$DISABLE_ZONE_CHECKING" == "yes" ]; then /usr/sbin/named-checkconf -z /etc/named.conf; else echo "Checking of zone files is disabled"; fi'
+ExecStart=/usr/sbin/named -u named $OPTIONS
+
+ExecReload=/bin/sh -c '/usr/sbin/rndc reload > /dev/null 2>&1 || /bin/kill -HUP $MAINPID'
+
+ExecStop=/bin/sh -c '/usr/sbin/rndc stop > /dev/null 2>&1 || /bin/kill -TERM $MAINPID'
+
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 #################################### Install/Setup Filebeat ####################################
 # If filebeat exists and is reporting to logstash just add new paths
