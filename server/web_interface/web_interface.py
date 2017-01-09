@@ -35,37 +35,12 @@ def script(scriptID, scriptName):
 		cursor = r.db("cloudsofhoney").table("scripts").run()
 
 		# Get script contents
-<<<<<<< HEAD
-		scriptContents = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]['scriptContents']
-
-=======
 		scriptContents = r.db("cloudsofhoney").table("scripts").get(scriptID).run()['scriptContents']
->>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 		return scriptContents
 
 """
 Add new sensor to database
 """
-<<<<<<< HEAD
-@app.route('/deploy/newsensor/<string:script> <string:tokenID> ', methods=['GET','POST'])
-def newSensor(script,tokenID):
-	if request.method == 'GET':
-		# connect to database
-		r.connect( "127.0.0.1", 28015).repl()
-		cursor = r.db("cloudsofhoney").table("scripts").run()
-
-		ipAddr = request.remote_addr
-		hostname = ''
-		sensorType = ''
-
-		# Add new entry to sensor table
-		r.db("cloudsofhoney").table("sensors").insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
-
-		# Get sensor UID
-		sensorID = list(r.db("cloudsofhoney").table("sensors").filter({r.row["hostname"] == 'hostname', r.row["ipaddr"] == 'ipAddr', r.row["sensorType"] == 'sensorType' }).run())[0]['id']
-
-	return sensorID
-=======
 @app.route('/newsensor/<string:honeypotHostname>/<string:scriptID>', methods=['GET','POST'])
 def newSensor(honeypotHostname, scriptID):
 	ipAddr = None
@@ -92,7 +67,6 @@ def newSensor(honeypotHostname, scriptID):
 	                return sensorID
 		    
         return "Honeypot not regisitered bad data\nIP Address: {0}\nHostname: {1}\nSensor Type: {2}\n\n".format(ipAddr, hostname, sensorType)
->>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 """
 Deploy menu tab to select script to deploy new network sensor or honeypot
@@ -106,35 +80,6 @@ def deploy():
 
 	# connect to database
 	r.connect( "127.0.0.1", 28015).repl()
-<<<<<<< HEAD
-	cursor = r.db("cloudsofhoney").table("scripts").run()
-
-	# If web request is pushing data to the server
-	if request.method == 'POST':
-		# Get the script being requested
-		scriptRequest = request.form['scriptSelect']
-		# If the drop down menu is not create a new script get selected scripts contents
-		if scriptRequest != "newScript":
-			scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
-
-			scriptContents = scriptEntry['scriptContents']
-			scriptUID = scriptEntry['id']
-
-			deployCommand = "wget https://{0}/scripts/{1} {2}".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
-		else:
-			scriptName = request.form['scriptName']
-			if 'deploy_' not in scriptName:
-				flash('Please include "deploy_" in script name for honeypot or network sensor')
-			else:
-				flash("Added script to database")
-
-
-	# Get all deploy scripts
-	for doc in cursor:
-		if 'deploy_' in doc['scriptName']:
-        	deployScripts.append(doc['scriptName'])
-=======
->>>>>>> 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
 
 	# If web request is pushing data to the server
 	if request.method == 'POST':
