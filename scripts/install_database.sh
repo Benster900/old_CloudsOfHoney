@@ -4,7 +4,8 @@ set -x
 set -e
 
 ################################## Install/Setup MariaDB ##################################
-yum install mariadb-server mariadb-client -y
+yum install mariadb-server mariadb-client mysql-devel -y
+pip install MySQL-python 
 systemctl enable mariadb
 systemctl start mariadb
 
