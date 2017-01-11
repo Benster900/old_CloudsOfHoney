@@ -3,11 +3,6 @@
 set -x
 set -e
 
-################################## NTP Time Sync ##################################
-yum install ntp ntpdate ntp-doc -y
-systemctl enable ntpd
-systemctl start ntpd
-ntpdate pool.ntp.org || true
 
 ##################################### Install Java ##################################
 yum install wget -y
@@ -201,25 +196,16 @@ sudo gunzip *.dat.gz
 
 
 #### Logstash input ####
-cat ../server/logstash/02-beats-input.conf >> /etc/logstash/conf.d/02-beats-input.conf
+cat $cloudsDir/server/logstash/02-beats-input.conf >> /etc/logstash/conf.d/02-beats-input.conf
 
 #### Honeypot filters ####
-cat ../server/logstash/11-honeypot-filter.conf >> /etc/logstash/conf.d/11-honeypot-filter.conf
+cat $cloudsDir/server/logstash/11-honeypot-filter.conf >> /etc/logstash/conf.d/11-honeypot-filter.conf
 
 #### Network senesor filters ####
-cat ../server/logstash/12-network-sensors-filters.conf >> /etc/logstash/conf.d/12-network-sensors-filters.conf
+cat $cloudsDir/server/logstash/12-network-sensors-filters.conf >> /etc/logstash/conf.d/12-network-sensors-filters.conf
 
 #### Syslog filter ####
-cat ../server/logstash/10-syslog-filter.conf >> /etc/logstash/conf.d/10-syslog-filter.conf
-
-
-# Load Kibana dashboards
-cd ~
-curl -L -O https://download.elastic.co/beats/dashboards/beats-dashboards-1.1.0.zip
-sudo yum -y install unzip
-unzip beats-dashboards-*.zip
-cd beats-dashboards-*
-./load.sh
+cat $cloudsDir/server/logstash/10-syslog-filter.conf >> /etc/logstash/conf.d/10-syslog-filter.conf
 
 
 systemctl restart logstash
