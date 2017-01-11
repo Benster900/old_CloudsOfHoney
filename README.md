@@ -8,6 +8,20 @@ I have always been a fan of the Modern Honey Network project but I always felt i
 
 `./setupScript`
 
+
+# CloudsOfHoney WebGUI
+##WARNING!!!!!!!!!!!!!!!!!!!!!!!!
+By default "https://<IP addr>/register" is left enabled!!! This allows anyone to register a user who can access the page. To disable
+`sed -i 's/SECURITY_REGISTERABLE = True/SECURITY_REGISTERABLE = False/g' CloudsOfHoney/server/web_interface/config.py
+systemctl restart cloudsofhoneywebgui`
+
+## Register User
+1. Browse: https://<IP addr>/register
+2. Enter E-mail address and paassword
+3. Once logged in logout the user
+4. sed -i 's/SECURITY_REGISTERABLE = True/SECURITY_REGISTERABLE = False/g' CloudsOfHoney/server/web_interface/config.py
+5. systemctl restart cloudsofhoneywebgui
+
 ## ELK stack
 ### Logstash
 

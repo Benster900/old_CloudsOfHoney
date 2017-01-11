@@ -34,7 +34,6 @@ login_manager = LoginManager()
 from .models import user_datastore, User, Role
 app = Flask(__name__)
 app.config.from_object('config')
-app.config['SECURITY_REGISTERABLE'] = True
 
 bootstrap.init_app(app)
 mail.init_app(app)

@@ -23,7 +23,7 @@ def main():
     	args = p.parse_args()
 
 	# Open file	
-	varFile = open('app.vars','w')
+	varFile = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'app.vars'),'w')
 	varFile.write(args.dbUser+'\n')
 	varFile.write(args.dbPass+'\n')
 	varFile.write(args.dbHost+'\n')

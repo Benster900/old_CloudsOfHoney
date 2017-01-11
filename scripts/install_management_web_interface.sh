@@ -68,12 +68,12 @@ server {
 EOF
 
 systemctl enable nginx
-systemctl start nginx
+systemctl restart nginx
 
 # Set SELinux permissions
 yum install -y policycoreutils-python
 
-curl https://localhost
+curl --insecure https://localhost
 cat /var/log/audit/audit.log | grep nginx | grep denied | audit2allow -M mynginx
 semodule -i mynginx.pp
 

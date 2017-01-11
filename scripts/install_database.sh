@@ -38,7 +38,8 @@ sed -i "s#http-port=8080#http-port=8080\nhttp-tls-cert=$sslCert#g" /etc/rethinkd
 systemctl enable rethinkdb
 systemctl start rethinkdb
 
-
+# Setup clouduser for webgui 
+python $cloudsDir/server/web_interface/setup.py -u clouduser -p $mysqlpassword 
 
 
 

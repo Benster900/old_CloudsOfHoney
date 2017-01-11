@@ -14,6 +14,9 @@ MHN_DOMAIN_NAME = 'cloud.localdomain'
 # Open application variables
 f = open('app.vars','r')
 
+# Enable user registration page
+SECURITY_REGISTERABLE = False
+
 # Setup database
 dbUser=f.readline().strip()
 dbPass=f.readline().strip()

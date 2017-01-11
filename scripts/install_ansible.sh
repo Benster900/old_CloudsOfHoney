@@ -7,7 +7,7 @@ set -e
 yum install ansible -y
 
 # generate ssh private and public key
-su - cloudsofhoney -c 'ssh-keygen -t rsa -q -P ""'
+su - cloudsofhoney -c 'ssh-keygen -t rsa -q -P "" -f $HOME/.ssh/id_rsa'
 
 # Config ansible Config
 sed -i 's/#remote_user = root/remote_user = cloudsofhoney/g' /etc/ansible/ansible.cfg

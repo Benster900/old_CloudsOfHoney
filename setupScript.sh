@@ -18,14 +18,14 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Install software and update system
-#yum update -y && yum upgrade -y
-#yum install epel-release -y
-#yum install vim net-tools htop wget gcc python-devel nginx -y
-#yum install python-pip -y
-#pip install --upgrade pip
+yum update -y && yum upgrade -y
+yum install epel-release -y
+yum install vim net-tools htop wget gcc python-devel nginx -y
+yum install python-pip -y
+pip install --upgrade pip
 
 # Set directory var
-cloudsDir=`dirname "$(pwd)"`
+cloudsDir="$(pwd)"
 SCRIPTS="$cloudsDir/scripts/"
 
 # Create user
@@ -39,9 +39,13 @@ chown cloudsofhoney:nginx -R $cloudsDir
 cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
+# Change hostname
+if [ $(hostname) == "localhost.localdomain" ]; then
+  read -p "Enter domain name: " -e domainName
+  hostnamectl set-hostname $domainName
+fi
+
 echo "[`date`] ========= Setup config file ========="
-read -p "Enter domain name: " -e domainName
-hostnamectl set-hostname $domainName
 sed -i "s/MHN_DOMAIN_NAME = '127.0.0.1'/MHN_DOMAIN_NAME = '$domainName'/g" ../server/web_interface/config.py
 
 echo "[`date`] ========= Installing postfix ========="
