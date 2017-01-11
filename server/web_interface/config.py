@@ -15,7 +15,7 @@ MHN_DOMAIN_NAME = 'cloud.localdomain'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://clouduser:Password123*@localhost/cloudsofhoney'
 
 # Security setting
-SECRET_KEY = 'secret-key'
+SECRET_KEY = os.urandom(24).encode('hex')
 SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 SECURITY_TRACKABLE = True
 SECURITY_PASSWORD_SALT = os.urandom(15).encode('hex')

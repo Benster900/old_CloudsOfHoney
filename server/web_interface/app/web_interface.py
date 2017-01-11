@@ -9,7 +9,9 @@ Description: Web interface for CloudsOfHoney
 # we'll use url_for to get some URLs for the app on the templates
 from flask import Flask, render_template, redirect, request, url_for, flash, g
 from flask_login import LoginManager, login_user , logout_user , current_user , login_required
+from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
 from flask_bootstrap import Bootstrap
+from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
@@ -18,55 +20,50 @@ from sqlalchemy import *
 from rethinkdb.errors import *
 import rethinkdb as r
 from config import SECRET_KEY
-#from models import User 
 from datetime import datetime
-
 
 # Initialize the Flask application
 app = Flask(__name__)
 app.config.from_object('config')
+app.config['SECURITY_REGISTERABLE'] = True
 Bootstrap(app)
 
 # Initialze an instance of LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Initializa database connection for flask app
-engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-Base = declarative_base()
+# Create mail object
+mail = Mail(app)
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column('user_id',Integer , primary_key=True)
-    username = Column('username', String(20), unique=True , index=True)
-    password = Column('password' , String(255))
-    email = Column('email',String(50),unique=True , index=True)
-    registered_on = Column('registered_on' , DateTime)
+# Create database connection object
+db = SQLAlchemy(app)
 
-    def __init__(self , username ,password , email):
-        self.username = username
-        self.password = password
-        self.email = email
-        self.registered_on = datetime.utcnow()
+# Define models
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
-    def is_authenticated(self):
-        return True
+class Role(db.Model, RoleMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
 
-    def is_active(self):
-        return True
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    confirmed_at = db.Column(db.DateTime())
+    last_login_at = db.Column(db.DateTime())
+    current_login_at = db.Column(db.DateTime())
+    last_login_ip = db.Column(db.String(45))
+    current_login_ip = db.Column(db.String(45))
+    login_count = db.Column(db.Integer()) 
+    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.id)
-
-    def __repr__(self):
-        return '<User %r>' % (self.username)
-
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+# Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
 
 # Define a route for the default URL, which loads the form
@@ -243,56 +240,6 @@ def about():
     return render_template('about.html')
 
 """
-Login is user based off user input
-"""
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'GET':
-    	# First time admin setup and check database has no users
-    	if session.query(User).first() == None:
-        	return redirect(url_for('setup'))
-        return render_template('login.html')
-
-    username = request.form['username']
-    password = request.form['password']
-    remember_me = False
-    if 'remember_me' in request.form:
-        remember_me = True
-    registered_user = session.query(User).filter(User.username==username, User.password==password).first()
-
-    if registered_user is None:
-        return redirect(url_for('login'))
-    login_user(registered_user, remember = remember_me)
-    return redirect(request.args.get('next') or url_for('deploy'))
-
-"""
-Setup
-"""
-@app.route('/setup' , methods=['GET','POST'])
-def setup():
-    if session.query(User).first() == None:
-    	if request.method == 'GET':
-    		return render_template('setup.html')
-    user = User(username=request.form['username'], password=request.form['password'], email=request.form['email'])
-    session.add(user)
-    session.commit()
-    flash('User successfully registered')
-    return redirect(url_for('login'))
-
-"""
-Register new user
-"""
-@app.route('/register' , methods=['GET','POST'])
-@login_required
-def register():
-    if request.method == 'GET':
-        return render_template('register.html')
-    user = User(username=request.form['username'], password=request.form['password'], email=request.form['email'])
-    session.add(user)
-    session.commit()
-    return redirect(url_for('login'))
-
-"""
 Logout authenticated user
 """
 @app.route('/logout')
@@ -322,6 +269,10 @@ def user_loader(user_id):
     """
     return session.query(User).get(user_id)
 
+# Create a user to test with
+@app.before_first_request
+def setup():
+    db.create_all()
 
 #Run the app :)
 if __name__ == "__main__":

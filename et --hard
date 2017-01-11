@@ -1,0 +1,122 @@
+commit 6e5b6366a998e20109d1e93104a6ee85ff548ae6
+Author: root <root@cloud.localdomain>
+Date:   Tue Jan 10 02:07:32 2017 -0500
+
+    Added basic auth to web app and need to implement hasing, updated views, updated web app folder structure
+
+commit 6b65811cbfe1508ddc8864cb756a038d3a14b565
+Merge: 6a54795 07412d3
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Mon Jan 9 15:11:05 2017 -0500
+
+    Updated README, updated network sensors, updated honeypots, update logstash filters
+
+commit 07412d3315ce06d629d50faa2cb010fc926b56ee
+Author: root <root@cloud.localdomain>
+Date:   Sun Jan 8 20:13:01 2017 -0500
+
+    Final commit to web_interface to allow deploy script update
+
+commit 6a547956840ab52ea7d42d9a38de873565dde607
+Merge: 487c80e 4b59c2b
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sun Jan 8 19:59:50 2017 -0500
+
+    Merge branch 'devcloud' of https://github.com/Benster900/CloudsOfHoneyManagementNode into devcloud
+
+commit 4b59c2bb5ca7442797617f768298a76ace571265
+Author: root <root@cloud.localdomain>
+Date:   Sun Jan 8 19:59:16 2017 -0500
+
+    Updated web_interface to update deploy scripts
+
+commit 487c80e59f4e034b767c4b501f3922ede3fcf9d9
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sun Jan 8 18:52:56 2017 -0500
+
+    Added ssh-key to cowire script, added sshkeyauthorization to web_interface
+
+commit db8ed936d99bd2bcb5bdef33f7a3ef2819b697f8
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sun Jan 8 18:33:30 2017 -0500
+
+    Fixed code conflict errors
+
+commit 4be2c37702850b3c0f82c9b86e0ea7e96557e3b1
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sun Jan 8 17:29:54 2017 -0500
+
+    Modified README, update ansible scripts, modified postfix
+
+commit ae35712341a87010733ca3ca9a0aa204206f3b1a
+Merge: 5ca38ce 46d864f
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sat Jan 7 03:22:18 2017 -0500
+
+    Added/mofied honeypots and network sensors, modified logstash confs
+
+commit 5ca38ceb135277e2f446ba80046b56cd4fcaef2a
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Sat Jan 7 03:21:12 2017 -0500
+
+    Added/mofied honeypots and network sensors, modified logstash confs
+
+commit 46d864fd69d0cae37d5a36dbf922f76e6855ea7e
+Author: Ben Bornholm <cloudsofhoney@cloud.localdomain>
+Date:   Fri Jan 6 03:05:16 2017 -0500
+
+    Fixed deploy tab, updated cowire honeypot s deploy script
+
+commit 488263b8cd3f1b0323f072613fa0769d02f21a77
+Author: Ben Bornholm <cloudsofhoney@cloud.localdomain>
+Date:   Wed Jan 4 03:51:41 2017 -0500
+
+    updated deploy script for cowire, web interface update with scripts/deploying/database, update to webgui, update to setupScript
+
+commit e18e9c0236eac15ba42c14ceb714319ae16fb3c5
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 06:39:28 2017 -0500
+
+    Added wsgi.py for webserver, updated README, started malware storage
+
+commit 4d682d9f468da85c8e8c0077437e487e07ee5dc3
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 05:42:11 2017 -0500
+
+    Added gitignore to git repo - just a clean up
+
+commit 1058191947ebacae0a6cfb77d62ed108b46a5a3c
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 05:29:08 2017 -0500
+
+    Updated README, fixed SSL issue with RethinkDB, got systemD 'working' with webgui, fixed holes in setupScript
+
+commit 74b1a2d4ca1df94129140d9589ac6370857c1e0a
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 04:06:41 2017 -0500
+
+    Made changes to setupScript and web interface setup
+
+commit 9ba6c4668f9ea48e774a19e757609efa3f3a6168
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 00:25:56 2017 -0500
+
+    Made some small changes to setupScript
+
+commit 5de3200e526332053b6ca23794339fa9f2b84469
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 00:17:08 2017 -0500
+
+    Good base down for management node
+
+commit faf2cfd65f8a6522bcd8b3d2c7522f95475c94a0
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Tue Jan 3 00:10:33 2017 -0500
+
+    Working web interface
+
+commit 19345fc3b40e2816c73a4cc6ee0156aa51d35659
+Author: Ben Bornholm <bbornholm2194@Bens-MBP.fios-router.home>
+Date:   Mon Jan 2 02:54:39 2017 -0500
+
+    first commit

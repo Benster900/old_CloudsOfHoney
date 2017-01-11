@@ -5,3 +5,5 @@ flask-login
 uwsgi
 flask_sqlalchemy
 rethinkdb
+pymysql
+flask_security
