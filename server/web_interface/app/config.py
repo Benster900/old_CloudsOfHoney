@@ -16,6 +16,6 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://clouduser:Password123*@localhost/clou
 
 # Security setting
 SECRET_KEY = 'secret-key'
-SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
+SECURITY_PASSWORD_HASH = 'pbkdf2_sha256'
+SECURITY_PASSWORD_SALT = 'Iksa8RZc5a'
 SECURITY_TRACKABLE = True
-SECURITY_PASSWORD_SALT = os.urandom(15).encode('hex')
