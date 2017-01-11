@@ -85,6 +85,7 @@ service: snortLogging uses u2json to convert unified2 to json.
 
 
 
+
 # Adding a new honeypot
 ### Adding a new honeypot or network sensor is relatively simple.
 1. Create a deploy script named "deploy_<honeypot/sensor>.sh"
@@ -94,15 +95,12 @@ service: snortLogging uses u2json to convert unified2 to json.
 4. Create a Filebeat input on the honeypot and copy the ssh pub key.
 
 ## System Requirements
-OS: CentOS 7 64-bit
-CPU: 2 cores
-Ram: 4GB
-HDD: 40GB
+* OS: CentOS 7 64-bit
+* CPU: 2 cores
+* Ram: 4GB
+* HDD: 40GB
+
 
 # Thanks to:
 #### MHN Project
 MHN Project: https://github.com/threatstream/mhn
-
-#### Web Theme
-Bootstrap Theme Link: https://startbootstrap.com/template-overviews/sb-admin-2/
-Github Code Link: https://github.com/poormonfared/sb-admin2

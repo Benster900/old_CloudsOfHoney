@@ -22,7 +22,21 @@ import rethinkdb as r
 from config import SECRET_KEY
 from datetime import datetime
 
+from app import app
+from app import db
+from app import mail
+from app import bootstrap
+from app import login_manager
+from app import security
+from .models import user_datastore, User, Role
+
 # Initialize the Flask application
+#bootstrap.init_app(app)
+#mail.init_app(app)
+#db.init_app(app)
+#security.init_app(app, user_datastore)
+#login_manager.init_app(app)
+
 #app = Flask(__name__)
 #app.config.from_object('config')
 #app.config['SECURITY_REGISTERABLE'] = True
@@ -71,7 +85,7 @@ from datetime import datetime
 @app.route('/homepage')
 @login_required
 def homepage():
-	return render_template('homepage.html')
+    return render_template('homepage.html')
 
 """
 Retrieve public SSH key from local machine
@@ -251,7 +265,7 @@ def logout():
 @login_manager.unauthorized_handler
 def handle_needs_login():
     flash("You have to be logged in to access this page.")
-    return redirect(url_for('login', next=request.endpoint))
+    return redirect(url_for('security.login', next=request.endpoint))
 
 """
 pull user info from the database based on session id
@@ -267,7 +281,7 @@ def user_loader(user_id):
 
     :param unicode user_id: user_id (email) user to retrieve
     """
-    return session.query(User).get(user_id)
+    return db.session.query(User).get(user_id)
 
 # Create a user to test with
 @app.before_first_request
