@@ -25,7 +25,7 @@ fi
 #pip install --upgrade pip
 
 # Set directory var
-cloudsDir=`dirname "$(readlink -f "$0")"`
+cloudsDir=`dirname "$(pwd)"`
 SCRIPTS="$cloudsDir/scripts/"
 
 # Create user
@@ -48,16 +48,16 @@ echo "[`date`] ========= Installing postfix ========="
 source install_smtp.sh
 
 echo "[`date`] ========= Installing Ansible ========="
-./install_ansible.sh
+source install_ansible.sh
 
 echo "[`date`] ========= Installing ELK stack ========="
-./install_elkstack.sh
+source install_elkstack.sh
 
 echo "[`date`] ========= Installing Elastalert ========="
-./install_elastalert.sh
+source install_elastalert.sh
 
 echo "[`date`] ========= Installing MariaDB ========="
-./install_database.sh
+source install_database.sh
 python install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="

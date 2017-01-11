@@ -10,9 +10,9 @@ git clone https://github.com/Yelp/elastalert.git
 cd /opt/elastalert
 
 # Install elastalert and requirements
-easy_install -U setuptools
-python setup.py install
 pip install --upgrade pip
+pip install setuptools --upgrade
+python setup.py install
 pip install -r requirements.txt
 
 # Setup config

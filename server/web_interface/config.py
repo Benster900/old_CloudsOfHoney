@@ -12,14 +12,14 @@ MHN_WEB_SERVER_HOME = _basedir
 MHN_DOMAIN_NAME = 'cloud.localdomain'
 
 # Open application variables
-f = open('app.var','r')
+f = open('app.vars','r')
 
 # Setup database
 dbUser=f.readline().strip()
 dbPass=f.readline().strip()
 dbHost=f.readline().strip()
 dbDatabase=f.readline().strip()
-SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{0}:{1}@{2}/{3}".format(dbUser,dbPass,dbHost,dbHost)
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{0}:{1}@{2}/{3}".format(dbUser, dbPass, dbHost, dbDatabase)
 
 # Security setting
 SECRET_KEY = f.readline().strip()

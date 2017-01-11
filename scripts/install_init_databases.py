@@ -19,9 +19,9 @@ def main():
     #r.db_create("cloudsofhoney").run()
 
     # Create tables
-    #r.db("cloudsofhoney").table_create("scripts").run()
-    #r.db("cloudsofhoney").table_create("sensors").run()
-    #r.db("cloudsofhoney").table_create("malwareSamples").run()
+    r.db("cloudsofhoney").table_create("scripts").run()
+    r.db("cloudsofhoney").table_create("sensors").run()
+    r.db("cloudsofhoney").table_create("malwareSamples").run()
 
     # Setup scrits table
     for filename in os.listdir(MHN_SCRIPTS_SERVER_HOME):
