@@ -74,82 +74,80 @@ else
 fi
 
 
-################################## Install/Seutp elastichoney ##################################
-# Create user
-useradd elastichoney -d /home/elastichoney -s /bin/bash -g users
+################################## Change SSHd port ##################################
+sed -i 's/#Port 22/Port 6969/g' /etc/ssh/sshd_config
+sed -i 's/Port 22/Port 6969/g' /etc/ssh/sshd_config
+yum -y install policycoreutils-python
+semanage port -m -t ssh_port_t -p tcp 6969
+systemctl restart sshd
 
-# Download elastichoney
+################################## Install/Setup Cowire ##################################
+yum install -y epel-release -y
+yum install -y gcc libffi-devel python-devel openssl-devel git python-pip pycrypto gmp gmp-devel mpfr-devel libmpc-devel -y
+pip install --upgrade pip
+pip install configparser pyOpenSSL tftpy twisted virtualenv
+
+adduser cowire
+
 cd /opt
-git clone https://github.com/jordan-wright/elastichoney.git
-cd /opt/elastichoney
-eleasticHoneyDir=$(pwd)
+git clone https://github.com/micheloosterhof/cowrie.git
+mv cowrie cowire
+cd /opt/cowire
 
-# install and setup golang
-yum install golang -y
+# Install virtualenv
+pip install virtualenv
+virtualenv cowire-env
+pip install -r requirements.txt
 
-echo ‘export GOROOT=/usr/lib/golang
-export GOBIN=$GOROOT/bin
-export GOPATH=/home/golang
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin’ > /etc/profile.d/go.sh
+# Copy config
+cp cowrie.cfg.dist cowrie.cfg
 
-source ~/.bashrc
-source /etc/profile
-ldconfig
+# Fix cowire systemd service
+cp doc/systemd/cowrie.service doc/systemd/cowrie.service.bak
+sed -i 's#cowrie#cowire#g' doc/systemd/cowrie.service
+sed -i 's#/home/cowire/cowire#/opt/cowire#g' doc/systemd/cowrie.service
+sed -i 's/Wants=mysql.service/#Wants=mysql.service/g' doc/systemd/cowrie.service
+sed -i 's#PIDFile=/opt/cowire/var/run/cowire.pid#PIDFile=/opt/cowire/var/run/cowrie.pid#g' doc/systemd/cowrie.service
 
-go get || true
-go build
-
-# Create log file
-mkdir logs
-
-# Make start file
-cat > start.sh << EOF
-#!/bin/bash
-./elastichoney -config="config.json" -log="logs/elastichoney.log" &
-pid=\$!
-echo \$pid
-echo \$pid > elastichoney.pid
-EOF
-
-# Make stop file
-cat > stop.sh << EOF
-#!/bin/bash
-pid=\$(cat elastichoney.pid)
-kill -9 \$pid
-rm -rf elastichoney.pid
-EOF
+cp doc/systemd/cowrie.service /etc/systemd/system/cowire.service
 
 #Fix permissions for cowrie user
-chown elastichoney:users -R $eleasticHoneyDir
-su elastichoney -c "chmod +x start.sh"
-su elastichoney -c "chmod +x stop.sh"
+chown -R cowire:users /opt/cowire/
 
-# Systemd
-cat > /etc/systemd/system/elastichoney.service << EOF
-[Unit]
-Description=elastichoneyHoneypot
-After=network.target
-#Wants=syslog.target
-#Wants=mysql.service
+systemctl enable cowire.service
+systemctl start cowire.service
 
-[Service]
-Type=forking
-User=elastichoney
-Group=users
-ExecStart=$eleasticHoneyDir/start.sh
-ExecStop=$eleasticHoneyDir/stop.sh
-ExecReload=$eleasticHoneyDir/stop.sh && sleep 10 && $eleasticHoneyDir/start.sh
-WorkingDirectory=$eleasticHoneyDir
-Restart=on-failure
-TimeoutSec=300
-
-[Install]
-WantedBy=multi-user.target
+################################## Install/Setup Tor Hidden Service ##################################
+cat > /etc/yum.repos.d/torproject.repo << EOF
+[tor]
+name=Tor repo
+enabled=1
+baseurl=http://deb.torproject.org/torproject.org/rpm/el/7/$basearch/
+gpgcheck=1
+gpgkey=http://deb.torproject.org/torproject.org/rpm/RPM-GPG-KEY-torproject.org.asc
+ 
+[tor-source]
+name=Tor source repo
+enabled=1
+autorefresh=0
+baseurl=http://deb.torproject.org/torproject.org/rpm/el/7/SRPMS
+gpgcheck=1
+gpgkey=http://deb.torproject.org/torproject.org/rpm/RPM-GPG-KEY-torproject.org.asc
 EOF
 
-systemctl enable elastichoney
-systemctl start elastichoney
+cat > /etc/tor/torrc << EOF
+DataDirectory /var/lib/tor
+HiddenServiceDir /var/lib/tor/hidden_service/
+HiddenServicePort 22 127.0.0.1:2222
 
+# Install tor
+yum install -y tor
+systemctl enable tor
+systemctl start tor
+EOF
+
+systemctl enable tor
+systemctl start tor
 
 ################################## Install/Setup FirewallD ##################################
 yum install firewalld -y || true
@@ -159,9 +157,10 @@ systemctl enable firewalld || true
 
 
 firewall-cmd --zone=public --add-masquerade --permanent
-firewall-cmd --zone=public --permanent --add-port=9200/tcp
-firewall-cmd --zone=public --permanent --add-port=22/tcp
+firewall-cmd --zone=public --add-forward-port=port=22:proto=tcp:toport=2222 --permanent
+firewall-cmd --zone=public --permanent --add-port=6969/tcp
 firewall-cmd --reload
+
 
 
 ################################## Install/Setup Filebeat ##################################
@@ -169,14 +168,14 @@ firewall-cmd --reload
 if rpm -qa | grep -qw filebeat; then
 
 # Just add config file
-cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
+cat > /etc/filebeat/conf.d/cowire.yml << EOF
 filebeat.prospectors:
 - paths:
-  - /opt/elastichoney/logs/elastichoney.log
+    - /opt/cowire/log/*.json
   fields:
-    sensorID: $result
     sensorType: honeypot
-  document_type: elastichoney
+    sensorID: $result
+  document_type: cowire
 EOF
 
 else
@@ -209,15 +208,15 @@ output.logstash:
   hosts: ["$1:5044"]
 EOF
 
-# Just add config file
-cat > /etc/filebeat/conf.d/elastichoney.yml << EOF
+#
+cat > /etc/filebeat/conf.d/cowire.yml << EOF
 filebeat.prospectors:
 - paths:
-  - /opt/elastichoney/logs/elastichoney.log
+    - /opt/cowire/log/*.json
   fields:
     sensorID: $result
     sensorType: honeypot
-  document_type: elastichoney
+  document_type: cowire
 EOF
 
 
