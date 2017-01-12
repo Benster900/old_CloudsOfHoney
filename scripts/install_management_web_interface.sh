@@ -11,7 +11,8 @@ virtualenv $web_dir/app/env
 . $web_dir/app/env/bin/activate
 pip install -r $web_dir/requirements.txt
 
-python $web_dir/setup.py
+read -p "Enter clouduser MariDB password: " -e mysqlPassword
+python $web_dir/setup.py --dbUser clouduser --dbPass $mysqlPassword --dbHost localhost --dbDatabase cloudsofhoney --dbHash pbkdf2_sha256 
 
 cat > /etc/systemd/system/cloudsofhoneywebgui.service << EOF
 [Unit]

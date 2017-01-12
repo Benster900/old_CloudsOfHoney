@@ -12,6 +12,9 @@ cd /opt/elastalert
 # Install elastalert and requirements
 pip install --upgrade pip
 pip install setuptools --upgrade
+pip install virtualenv
+virtualenv env
+. env/bin/activate
 python setup.py install
 pip install -r requirements.txt
 
@@ -30,7 +33,7 @@ After=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/elastalert
-ExecStart=/opt/elastalert/virtualenvelastalert/bin/python /opt/elastalert/elastalert/elastalert.py
+ExecStart=/opt/elastalert/env/bin/python /opt/elastalert/elastalert/elastalert.py
 
 [Install]
 WantedBy=multi-user.target

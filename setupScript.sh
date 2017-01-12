@@ -40,8 +40,8 @@ cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
 # Change hostname
+read -p "Enter domain name: " -e domainName
 if [ $(hostname) == "localhost.localdomain" ]; then
-  read -p "Enter domain name: " -e domainName
   hostnamectl set-hostname $domainName
 fi
 
