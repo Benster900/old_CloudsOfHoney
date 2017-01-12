@@ -5,4 +5,5 @@ uwsgi
 flask_sqlalchemy
 rethinkdb
 pymysql
+Flask-Secuirty
 flask_security
