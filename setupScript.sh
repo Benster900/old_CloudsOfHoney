@@ -58,6 +58,7 @@ echo "[`date`] ========= Installing ELK stack ========="
 source install_elkstack.sh
 
 echo "[`date`] ========= Installing Elastalert ========="
+cd $SCRIPTS
 source install_elastalert.sh
 
 echo "[`date`] ========= Installing MariaDB ========="

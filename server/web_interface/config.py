@@ -1,8 +1,8 @@
 import os
 
 # Get the path that the server is running from
-_basedir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../..'))
-MHN_SERVER_HOME = _basedir
+basedir = os.path.abspath(os.path.dirname(__file__))
+MHN_SERVER_HOME = basedir
 
 # Get the path that the app is running in
 _basedir = os.path.abspath(os.path.dirname(__file__))
@@ -12,10 +12,10 @@ MHN_WEB_SERVER_HOME = _basedir
 MHN_DOMAIN_NAME = 'cloud.localdomain'
 
 # Open application variables
-f = open('app.vars','r')
+f = open(os.path.join(os.path.dirname( __file__ ),'app.vars'),'r')
 
 # Enable user registration page
-SECURITY_REGISTERABLE = False
+SECURITY_REGISTERABLE = True
 
 # Setup database
 dbUser=f.readline().strip()

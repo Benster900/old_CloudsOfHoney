@@ -30,7 +30,7 @@ After=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/elastalert
-ExecStart=/usr/bin/elastalert
+ExecStart=/opt/elastalert/virtualenvelastalert/bin/python /opt/elastalert/elastalert/elastalert.py
 
 [Install]
 WantedBy=multi-user.target

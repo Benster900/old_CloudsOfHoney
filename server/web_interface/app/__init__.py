@@ -4,7 +4,7 @@ from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security
 from config import * 
-
+from config import basedir
 
 from flask import Flask, render_template, redirect, request, url_for, flash, g
 from flask_login import LoginManager, login_user , logout_user , current_user , login_required
@@ -41,5 +41,5 @@ db.init_app(app)
 security.init_app(app, user_datastore)
 login_manager.init_app(app)
 
-import views
+from app import main 
 
