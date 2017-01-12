@@ -7,9 +7,13 @@ web_dir=$cloudsDir/server/web_interface
 
 # Install virtualenv
 pip install virtualenv
-virtualenv $web_dir/env
-. $web_dir/env/bin/activate
-pip install -r ../requirements.txt
+virtualenv $web_dir/app/env
+. $web_dir/app/env/bin/activate
+pip install -r $web_dir/requirements.txt
+
+# Setup app.vars for web app
+read -s -p "Enter password for MariaDB clouduser: " mysqlpassword
+python $web_dir/setup.py --dbUser clouduser --dbPass $mysqlpassword --dbHost localhost --dbDatabase cloudsofhoney --dbHash pbkdf2_sha256
 
 cat > /etc/systemd/system/cloudsofhoneywebgui.service << EOF
 [Unit]
@@ -20,8 +24,8 @@ After=network.target
 User=cloudsofhoney
 Group=nginx
 WorkingDirectory=$web_dir
-Environment="PATH=$web_dir/env/bin"
-ExecStart=$web_dir/env/bin/uwsgi --ini web_interface.ini
+Environment="PATH=$web_dir/app/env/bin"
+ExecStart=$web_dir/app/env/bin/uwsgi --ini web_interface.ini
 
 [Install]
 WantedBy=multi-user.target
@@ -66,4 +70,12 @@ server {
 EOF
 
 systemctl enable nginx
-systemctl start nginx
+systemctl restart nginx
+
+# Set SELinux permissions
+yum install -y policycoreutils-python
+
+curl --insecure https://localhost
+cat /var/log/audit/audit.log | grep nginx | grep denied | audit2allow -M mynginx
+semodule -i mynginx.pp
+

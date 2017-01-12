@@ -1,7 +1,9 @@
 from app import db
 from flask.ext.security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
 
-# Define models
+"""
+Define models for user authentication  
+"""
 roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
         db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
@@ -25,3 +27,19 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+
+"""
+Define models for incident response
+"""
+class event(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(255))
+	event_create_date = db.Column(db.DateTime())
+	status = db.Column(db.String(255))
+	type = db.Column(db.String(255))
+	category = db.Column(db.String(255))
+	comments = db.Column(db.String(1000))
+	uid = db.Column(db.Integer, primary_key=True)	
+
+
+

@@ -10,11 +10,11 @@ systemctl enable mariadb
 systemctl start mariadb
 
 mysql_secure_installation
-read -s -p "Enter password for MariaDB root user: " mysqlpassword
+read -s -p "Enter password for the MariaDB root user: " mysqlpassword
 
 mysql --user="root" --password="$mysqlpassword" --execute="CREATE DATABASE cloudsofhoney;"
-read -s -p "Enter password for MariaDB clouduser: " mysqlpassword
-mysql --user="root" --password="$mysqlpassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlpassword';"
+read -s -p "Enter password for MariaDB clouduser: " $mysqlCloudsuserpassword
+mysql --user="root" --password="$mysqlpassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlCloudsuserpassword';"
 mysql --user="root" --password="$mysqlpassword" --execute="GRANT ALL ON cloudsofhoney.* TO 'clouduser'@'localhost'; FLUSH PRIVILEGES;"
 
 
@@ -38,7 +38,8 @@ sed -i "s#http-port=8080#http-port=8080\nhttp-tls-cert=$sslCert#g" /etc/rethinkd
 systemctl enable rethinkdb
 systemctl start rethinkdb
 
-
+# Setup clouduser for webgui 
+python $cloudsDir/server/web_interface/setup.py -u clouduser -p $mysqlpassword 
 
 
 

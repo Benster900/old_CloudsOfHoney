@@ -206,7 +206,10 @@ cat $cloudsDir/server/logstash/12-network-sensors-filters.conf >> /etc/logstash/
 
 #### Syslog filter ####
 cat $cloudsDir/server/logstash/10-syslog-filter.conf >> /etc/logstash/conf.d/10-syslog-filter.conf
+<<<<<<< HEAD
 
+=======
+>>>>>>> devcloud
 
 systemctl restart logstash
 systemctl enable logstash

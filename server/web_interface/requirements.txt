@@ -1,9 +1,9 @@
 flask
 flask-bootstrap
-flask-admin
-flask-login
+Flask-Login
 uwsgi
 flask_sqlalchemy
 rethinkdb
 pymysql
 flask_security
+Flask-Security

@@ -87,10 +87,10 @@ eleasticHoneyDir=$(pwd)
 # install and setup golang
 yum install golang -y
 
-echo ‘export GOROOT=/usr/lib/golang
+echo ?export GOROOT=/usr/lib/golang
 export GOBIN=$GOROOT/bin
 export GOPATH=/home/golang
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin’ > /etc/profile.d/go.sh
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin? > /etc/profile.d/go.sh
 
 source ~/.bashrc
 source /etc/profile
@@ -106,16 +106,16 @@ mkdir logs
 cat > start.sh << EOF
 #!/bin/bash
 ./elastichoney -config="config.json" -log="logs/elastichoney.log" &
-pid=\$!
-echo \$pid
-echo \$pid > elastichoney.pid
+pid=$!
+echo $pid
+echo $pid > elastichoney.pid
 EOF
 
 # Make stop file
 cat > stop.sh << EOF
 #!/bin/bash
-pid=\$(cat elastichoney.pid)
-kill -9 \$pid
+pid=$(cat elastichoney.pid)
+kill -9 $pid
 rm -rf elastichoney.pid
 EOF
 
@@ -223,3 +223,4 @@ EOF
 
 fi
 systemctl restart filebeat
+

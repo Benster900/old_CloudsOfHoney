@@ -242,16 +242,22 @@ def search():
     return render_template('search.html')
 
 @app.route('/settings')
+@login_required
 def settings():
     return render_template('settings.html')
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
+"""
+Incident Respnse Dashboard
+"""
+@app.route('/ir/dashboard')
+@login_required
+def irDashboard():
+    return render_template('ir/dashboard.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+@app.route('/ir/createEvent')
+@login_required
+def irCreateEvent():
+    return render_template('ir/createEvent.html')
 
 """
 Logout authenticated user

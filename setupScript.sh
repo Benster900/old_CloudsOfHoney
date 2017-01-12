@@ -25,7 +25,7 @@ yum install python-pip -y
 pip install --upgrade pip
 
 # Set directory var
-cloudsDir=`dirname "$(readlink -f "$0")"`
+cloudsDir="$(pwd)"
 SCRIPTS="$cloudsDir/scripts/"
 
 # Create user
@@ -40,8 +40,8 @@ cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
 # Change hostname
+read -p "Enter domain name: " -e domainName
 if [ $(hostname) == "localhost.localdomain" ]; then
-  read -p "Enter domain name: " -e domainName
   hostnamectl set-hostname $domainName
 fi
 
@@ -58,16 +58,17 @@ echo "[`date`] ========= Installing postfix ========="
 source install_smtp.sh
 
 echo "[`date`] ========= Installing Ansible ========="
-./install_ansible.sh
+source install_ansible.sh
 
 echo "[`date`] ========= Installing ELK stack ========="
 source install_elkstack.sh
 
 echo "[`date`] ========= Installing Elastalert ========="
-./install_elastalert.sh
+cd $SCRIPTS
+source install_elastalert.sh
 
 echo "[`date`] ========= Installing MariaDB ========="
-./install_database.sh
+source install_database.sh
 python install_init_databases.py $SCRIPTS
 
 echo "[`date`] ========= Installing Web Interface ========="
@@ -80,8 +81,3 @@ echo "[`date`] ========= CloudsOfHoney Server Install Finished ========="
 echo ""
 
 
-
-
-
-
-#
