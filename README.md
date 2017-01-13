@@ -62,6 +62,8 @@ Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i
 A neat new NoSQL database that I am tinkering with.
 
 ## Malware Database
+Connect to another database: scripts/install_management_web_interface.sh
+Set: `python $web_dir/setup.py --dbUser <user> --dbPass <password> --dbHost <ip addr> --dbDatabase <database> --dbHash pbkdf2_sha256`
 ### Local Malware
 Ansible is used to retrieve malware from each sensor and store it locally for 24 hours. Within this 24 hour window the malware is processes by a binary analyzer.
 `Location: /srv/malwareSamples/<date>`
@@ -97,7 +99,8 @@ My university has Google Apps so I get "unlimited" Google Drive space. I decided
 service: snort is the actual NIDS for the local system.
 service: snortLogging uses u2json to convert unified2 to json.
 
-
+# Tools
+This is a directory filled with a bunch of tools, script and installs. Some of the installs are additional add-ons for the CloudsOfHoney Management Node like ElastAlert
 
 
 # Adding a new honeypot

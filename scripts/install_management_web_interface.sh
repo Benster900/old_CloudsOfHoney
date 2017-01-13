@@ -9,10 +9,16 @@ web_dir=$cloudsDir/server/web_interface
 pip install virtualenv
 virtualenv $web_dir/app/env
 . $web_dir/app/env/bin/activate
+pip install --upgrade pip
 pip install -r $web_dir/requirements.txt
+pip install Flask-Security		
 
-read -p "Enter clouduser MariDB password: " -e mysqlPassword
-python $web_dir/setup.py --dbUser clouduser --dbPass $mysqlPassword --dbHost localhost --dbDatabase cloudsofhoney --dbHash pbkdf2_sha256 
+# Create web app app.vars
+read -s -p "Enter clouduser MariDB password: " mysqlCloudUserPassword
+python $web_dir/setup.py --dbUser clouduser --dbPass $mysqlCloudUserPassword --dbHost localhost --dbDatabase cloudsofhoney --dbHash pbkdf2_sha256 
+cp $web_dir/app.vars $cloudsDir/backup
+
+chown cloudsofhoney:nginx -R $web_dir
 
 cat > /etc/systemd/system/cloudsofhoneywebgui.service << EOF
 [Unit]

@@ -63,7 +63,7 @@ cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 # Delete server block  in default config
 sed -i -e '38,87d' /etc/nginx/nginx.conf
 
-read -p "Create OpenSSL cert or Let's Encrypt Cert [L/O]" -n 1 -r
+read -p "Create OpenSSL cert or Let's Encrypt Cert [L/O]: " -n 1 -r
 if [[ $REPLY =~ ^[Oo]$ ]]; then
 	mkdir /etc/nginx/ssl
 	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt

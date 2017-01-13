@@ -34,8 +34,6 @@ useradd cloudsofhoney
 # Change permissions
 chmod +x scripts/*
 chown cloudsofhoney:nginx -R $cloudsDir
-
-
 cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
@@ -68,6 +66,7 @@ source install_management_web_interface.sh
 echo "[`date`] ========= FirewallD setup ========="
 ./install_firewalld.sh
 
+chown cloudsofhoney:nginx -R $cloudsDir
 echo "[`date`] ========= CloudsOfHoney Server Install Finished ========="
 echo ""
 

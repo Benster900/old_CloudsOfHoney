@@ -9,7 +9,7 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 MHN_WEB_SERVER_HOME = _basedir
 
 # Domain or IP address of server
-MHN_DOMAIN_NAME = 'cloud.localdomain'
+COH_DOMAIN_NAME = 'cloud.localdomain'
 
 # Open application variables
 f = open(os.path.join(os.path.dirname( __file__ ),'app.vars'),'r')

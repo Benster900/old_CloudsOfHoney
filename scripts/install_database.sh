@@ -10,17 +10,16 @@ systemctl enable mariadb
 systemctl start mariadb
 
 mysql_secure_installation
-read -s -p "Enter password for MariaDB root user: " mysqlpassword
 
-mysql --user="root" --password="$mysqlpassword" --execute="CREATE DATABASE cloudsofhoney;"
-read -s -p "Enter password for MariaDB clouduser: " mysqlpassword
-mysql --user="root" --password="$mysqlpassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlpassword';"
-mysql --user="root" --password="$mysqlpassword" --execute="GRANT ALL ON cloudsofhoney.* TO 'clouduser'@'localhost'; FLUSH PRIVILEGES;"
+read -s -p "Enter password for MariaDB root user: "  mysqlRootPassword
+mysql --user="root" --password="$mysqlRootPassword" --execute="CREATE DATABASE cloudsofhoney;"
+read -s -p "Enter password for MariaDB clouduser user: " mysqlCloudUserPassword
+mysql --user="root" --password="$mysqlRootPassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlCloudUserPassword';"
+mysql --user="root" --password="$mysqlRootPassword" --execute="GRANT ALL ON cloudsofhoney.* TO 'clouduser'@'localhost'; FLUSH PRIVILEGES;"
 
 
 ################################## Install/Setup RethinkDB ##################################
-sudo wget http://download.rethinkdb.com/centos/7/`uname -m`/rethinkdb.repo \
-          -O /etc/yum.repos.d/rethinkdb.repo
+sudo wget http://download.rethinkdb.com/centos/7/`uname -m`/rethinkdb.repo -O /etc/yum.repos.d/rethinkdb.repo
 sudo yum install rethinkdb -y
 pip install rethinkdb
 
@@ -37,19 +36,3 @@ sed -i "s#http-port=8080#http-port=8080\nhttp-tls-cert=$sslCert#g" /etc/rethinkd
 
 systemctl enable rethinkdb
 systemctl start rethinkdb
-
-# Setup clouduser for webgui 
-python $cloudsDir/server/web_interface/setup.py -u clouduser -p $mysqlpassword 
-
-
-
-
-
-
-
-
-
-
-
-
-#https://rethinkdb.com/docs/security/

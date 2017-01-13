@@ -9,76 +9,18 @@ Description: Web interface for CloudsOfHoney
 # we'll use url_for to get some URLs for the app on the templates
 from flask import Flask, render_template, redirect, request, url_for, flash, g
 from flask_login import LoginManager, login_user , logout_user , current_user , login_required
-from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
-from flask_bootstrap import Bootstrap
-from flask_mail import Mail
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import * 
+from config import COH_DOMAIN_NAME
+from datetime import datetime
 from rethinkdb.errors import *
 import rethinkdb as r
-from config import SECRET_KEY
-from datetime import datetime
 
+from .models import user_datastore, User, Role
 from app import app
 from app import db
 from app import mail
 from app import bootstrap
 from app import login_manager
 from app import security
-from .models import user_datastore, User, Role
-
-# Initialize the Flask application
-#bootstrap.init_app(app)
-#mail.init_app(app)
-#db.init_app(app)
-#security.init_app(app, user_datastore)
-#login_manager.init_app(app)
-
-#app = Flask(__name__)
-#app.config.from_object('config')
-#app.config['SECURITY_REGISTERABLE'] = True
-#Bootstrap(app)
-
-# Initialze an instance of LoginManager
-#login_manager = LoginManager()
-#login_manager.init_app(app)
-
-# Create mail object
-#mail = Mail(app)
-
-# Create database connection object
-#db = SQLAlchemy(app)
-
-# Define models
-#roles_users = db.Table('roles_users',
-#        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-#        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
-#
-#class Role(db.Model, RoleMixin):
-#    id = db.Column(db.Integer(), primary_key=True)
-#    name = db.Column(db.String(80), unique=True)
-#    description = db.Column(db.String(255))
-#
-#class User(db.Model, UserMixin):
-#    id = db.Column(db.Integer, primary_key=True)
-#    email = db.Column(db.String(255), unique=True)
-#    password = db.Column(db.String(255))
-#    active = db.Column(db.Boolean())
-#    confirmed_at = db.Column(db.DateTime())
-#    last_login_at = db.Column(db.DateTime())
-#    current_login_at = db.Column(db.DateTime())
-#    last_login_ip = db.Column(db.String(45))
-#    current_login_ip = db.Column(db.String(45))
-#    login_count = db.Column(db.Integer()) 
-#    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
-
-# Setup Flask-Security
-#user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-#security = Security(app, user_datastore)
-
 
 # Define a route for the default URL, which loads the form
 @app.route('/')
@@ -173,7 +115,7 @@ def deploy():
 	        scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
-		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptRequest, scriptUID )
 	    # Update existing script 
 	    elif scriptRequest != "newScript" and ( "submit_name" in request.form ):
 		scriptContents = request.form['scriptBox']
@@ -183,7 +125,7 @@ def deploy():
 		scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
-                deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptRequest, scriptUID )
+                deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptRequest, scriptUID )
  
 	    # Create new script
 	    elif scriptRequest == "newScript" and ( "submit_name" in request.form):
@@ -204,7 +146,7 @@ def deploy():
                     scriptUID = scriptEntry['id']
                     scriptContents = scriptEntry['scriptContents']
 
-                    deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1}  && sudo bash {1} {0} {2}""".format(MHN_DOMAIN_NAME, scriptName, scriptUID )
+                    deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1}  && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptName, scriptUID )
 	    # Select new script but DO NOT create a script without content
 	    elif scriptRequest == "newScript" and ( "submit_name" not in request.form ):
 		deployCommand = ""
@@ -293,7 +235,3 @@ def user_loader(user_id):
 @app.before_first_request
 def setup():
     db.create_all()
-
-#Run the app :)
-#if __name__ == "__main__":
-#    app.run(debug = True, host='0.0.0.0',port=5000)
