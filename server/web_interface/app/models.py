@@ -1,5 +1,5 @@
 from app import db
-from flask.ext.security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
+from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
 
 """
 Define models for user authentication  

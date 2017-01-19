@@ -2,8 +2,8 @@
 {% block body %}
   <!-- Cloudsofhoney photo credit: https://regmedia.co.uk/2014/06/11/cloudsecurityinfosecamazon.jpg?x=648&y=348&crop=1 --> 
   <center><img src="{{ url_for('static', filename='cloudsofhoney.jpg') }}"></center>
-  <!-- Login panel -->
 
+  <!-- Login panel -->
   <center><div class="container">
      {% from "security/_macros.html" import render_field_with_errors, render_field %}
      {% include "security/_messages.html" %}

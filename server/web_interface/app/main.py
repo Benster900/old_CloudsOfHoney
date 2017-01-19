@@ -49,8 +49,13 @@ def sshkeyauthentication(sensorID):
 Allows curl and wget to retireve scripts
 """
 @app.route('/scripts/<string:scriptID>/<string:scriptName>', methods = ['GET'])
-@login_required
 def script(scriptID, scriptName):
+	
+	print "hello"
+	print scriptID
+	print scriptName
+	print "hello"
+	
 	if request.method == 'GET':
 		# connect to database
 		r.connect( "127.0.0.1", 28015).repl()
@@ -58,13 +63,13 @@ def script(scriptID, scriptName):
 
 		# Get script contents
 		scriptContents = r.db("cloudsofhoney").table("scripts").get(scriptID).run()['scriptContents']
+		print scriptContents
 		return scriptContents
 
 """
 Add new sensor to database
 """
 @app.route('/newsensor/<string:honeypotHostname>/<string:scriptID>', methods=['GET','POST'])
-@login_required
 def newSensor(honeypotHostname, scriptID):
 	ipAddr = None
 	hostname = None

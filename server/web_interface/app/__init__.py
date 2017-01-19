@@ -1,8 +1,8 @@
 from flask import Flask
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.mail import Mail
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import Security
+from flask_bootstrap import Bootstrap
+from flask_mail import Mail
+from flask_sqlalchemy import SQLAlchemy
+from flask_security import Security
 from config import * 
 from config import basedir
 
