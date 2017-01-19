@@ -115,7 +115,7 @@ def deploy():
 	        scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
-		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptRequest, scriptUID )
+		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(request.headers['Host'], scriptRequest, scriptUID )
 	    # Update existing script 
 	    elif scriptRequest != "newScript" and ( "submit_name" in request.form ):
 		scriptContents = request.form['scriptBox']
@@ -125,7 +125,7 @@ def deploy():
 		scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
 		scriptContents = scriptEntry['scriptContents']
 		scriptUID = scriptEntry['id']
-                deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptRequest, scriptUID )
+                deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(request.headers['Host'], scriptRequest, scriptUID )
  
 	    # Create new script
 	    elif scriptRequest == "newScript" and ( "submit_name" in request.form):
