@@ -57,7 +57,7 @@ sudo systemctl start kibana.service
 ##################################### Install/Setup Nginx #####################################
 yum -y install epel-release
 yum -y install nginx httpd-tools
-sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
+sudo htpasswd -c /etc/nginx/htpasswdKibana.users kibanaadmin
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
 # Delete server block  in default config
@@ -91,7 +91,7 @@ server {
         add_header Strict-Transport-Security max-age=15768000;
 
         auth_basic "Restricted";
-        auth_basic_user_file /etc/nginx/htpasswd.users;
+        auth_basic_user_file /etc/nginx/htpasswdKibana.users;
 
 	location / {
         	proxy_pass http://localhost:5601;
@@ -148,7 +148,7 @@ server {
         index index.html index.htm;
 
         auth_basic "Restricted";
-        auth_basic_user_file /etc/nginx/htpasswd.users;
+        auth_basic_user_file /etc/nginx/htpasswdKibana.users;
 
         location / {
                 proxy_pass http://localhost:5601;
