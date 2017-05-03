@@ -36,10 +36,8 @@ Retrieve public SSH key from local machine
 @app.route('/sshkeyauthentication/<string:sensorID>', methods = ['GET'])
 def sshkeyauthentication(sensorID):
 	if request.method == 'GET':
-		# connect to database
-		r.connect( "127.0.0.1", 28015).repl()
- 
-		if r.db("cloudsofhoney").table("sensors").get(sensorID).run():
+		# Check if sensor exists 
+		if monogo.db.sensors.find({sensorID : {"$exists": true} }):
 			import os
 			sshkey = open('/home/cloudsofhoney/.ssh/id_rsa.pub','r').read()
 			return sshkey
@@ -51,21 +49,9 @@ Allows curl and wget to retireve scripts
 """
 @app.route('/scripts/<string:scriptID>/<string:scriptName>', methods = ['GET'])
 def script(scriptID, scriptName):
-	
-	print "hello"
-	print scriptID
-	print scriptName
-	print "hello"
-	
 	if request.method == 'GET':
-		# connect to database
-		r.connect( "127.0.0.1", 28015).repl()
-		cursor = r.db("cloudsofhoney").table("scripts").run()
-
 		# Get script contents
-		scriptContents = r.db("cloudsofhoney").table("scripts").get(scriptID).run()['scriptContents']
-		print scriptContents
-		return scriptContents
+		return mongo.db.scripts.find({"scriptName": scriptName})[0]['scriptContents']
 
 """
 Add new sensor to database
@@ -78,10 +64,6 @@ def newSensor(honeypotHostname, scriptID):
 	tokenID = None
 
         if request.method == 'POST':
-                    # connect to database
-	            r.connect( "127.0.0.1", 28015).repl()
-	            cursor = r.db("cloudsofhoney").table("scripts").run()
-
 	            # Get new sensor identity
 	            ipAddr = request.remote_addr
 		    hostname = honeypotHostname
@@ -89,10 +71,10 @@ def newSensor(honeypotHostname, scriptID):
 
                     # Check all data is valid before adding
 	            if (ipAddr != None and hostname != None and tokenID != None):
-			sensorType = r.db("cloudsofhoney").table("scripts").get(tokenID).run()['sensorType']
+			sensorType = mongo.db.scripts.find({"_id":tokenID})[0]['sensorType']
 
         		# Add new entry to sensor table and get sensor ID
-                        sensorID = r.db("cloudsofhoney").table("sensors").insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0}).run()['generated_keys'][0]
+                        sensorID = mongo.db.sensors.insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
 	                return sensorID
 
         return "Honeypot not regisitered bad data\nIP Address: {0}\nHostname: {1}\nSensor Type: {2}\n\n".format(ipAddr, hostname, sensorType)
@@ -173,9 +155,8 @@ Returns a list of honeypots and network sensors deployed.
 @app.route('/sensors')
 @login_required
 def sensors():
-	r.connect( "127.0.0.1", 28015).repl()
-	cursor = list(r.db('cloudsofhoney').table("sensors").run())
-
+	# Get a list of sensor from database
+	cursor = list(mongo.db.sensors.find({}))
 	return render_template('sensors.html', sensors=cursor)
 
 # Send user to kibana interface to query data
