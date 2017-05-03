@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rethinkdb as r
+from pymongo import MongoClient
 import argparse
 import os
 import sys
@@ -13,22 +13,17 @@ def main():
     time.sleep(10)
 
     # Connect to rethinkdb
-    r.connect(host="localhost", port=28015).repl()	
+    p = MongoClient()
 
     # Create database
-    r.db_create("cloudsofhoney").run()
-
-    # Create tables
-    r.db("cloudsofhoney").table_create("scripts").run()
-    r.db("cloudsofhoney").table_create("sensors").run()
-    r.db("cloudsofhoney").table_create("malwareSamples").run()
+    db = p['cloudsofhoney']
 
     # Setup scrits table
     for filename in os.listdir(MHN_SCRIPTS_SERVER_HOME):
-	if 'deploy' in filename:
-	    scriptContents = str(open(filename, 'r').read())
-	    fileName=str(filename)
-            sensorType=str(filename[filename.find('_')+1:-3])		
-	    print fileName
- 	    r.db('cloudsofhoney').table("scripts").insert({"scriptName": fileName ,"sensorType": sensorType, "scriptContents": scriptContents}).run()
+        if 'deploy' in filename:
+            scriptContents = str(open(filename, 'r').read())
+            fileName=str(filename)
+            sensorType=str(filename[filename.find('_')+1:-3])
+            print fileName
+            db.scripts.insert_one({"scriptName": fileName ,"sensorType": sensorType, "scriptContents": scriptContents})
 main()

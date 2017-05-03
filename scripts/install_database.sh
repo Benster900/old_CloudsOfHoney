@@ -17,55 +17,19 @@ read -s -p "Enter password for MariaDB clouduser user: " mysqlCloudUserPassword
 mysql --user="root" --password="$mysqlRootPassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlCloudUserPassword';"
 mysql --user="root" --password="$mysqlRootPassword" --execute="GRANT ALL ON cloudsofhoney.* TO 'clouduser'@'localhost'; FLUSH PRIVILEGES;"
 
-
-################################## Install/Setup RethinkDB ##################################
-sudo wget http://download.rethinkdb.com/centos/7/`uname -m`/rethinkdb.repo -O /etc/yum.repos.d/rethinkdb.repo
-sudo yum install rethinkdb -y
-pip install rethinkdb
-
-cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
-sed -i 's/# http-port=8080/http-port=8000/g' /etc/rethinkdb/instances.d/instance1.conf
-sed -i 's/# bind=127.0.0.1/bind=127.0.0.1/g' /etc/rethinkdb/instances.d/instance1.conf
-
-systemctl enable rethinkdb
-systemctl start rethinkdb
-
-################################## Setup nginx ##################################
-htpasswd -c /etc/nginx/htpasswdRethink.users rethinkdbadmin
-
-# Setup SSL encryption
-sslKey="$(cat /etc/nginx/conf.d/kibana.conf | grep -w "ssl_certificate_key" | awk '{print $2}' | rev | cut -c 2- | rev)"
-sslCert="$(cat /etc/nginx/conf.d/kibana.conf | grep -w "ssl_certificate" | awk '{print $2}' | rev | cut -c 2- | rev)"
-
-cat > /etc/nginx/conf.d/rethinkdb.conf << EOF
-server {
-        listen 8000 ssl;
-        server_name _;
-
-        root /usr/share/nginx/html;
-        index index.html index.htm;
-
-        ssl_certificate $sslKey;
-        ssl_certificate_key $sslCert;
-
-        ssl_prefer_server_ciphers on;
-        ssl_dhparam /etc/ssl/certs/dhparam.pem;
-        ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers         HIGH:!aNULL:!MD5;
-	ssl_session_timeout 1d;
-        ssl_session_cache shared:SSL:50m;
-        ssl_stapling on;
-        ssl_stapling_verify on;
-        add_header Strict-Transport-Security max-age=15768000;
-
-        auth_basic "Restricted";
-        auth_basic_user_file /etc/nginx/htpasswdRethink.users;
-
-	location / {
-        	proxy_pass http://localhost:8000;
-    	}
-}
+################################## Install/Setup Mongo ##################################
+cat > /etc/yum.repos.d/mongodb.repo << EOF
+[mongodb]
+name=MongoDB Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
+gpgcheck=0
+enabled=1
 EOF
 
-semanage port -a -t http_port_t -p tcp 8001
-systemctl restart nginx
+yum -y update
+yum -y install mongodb-org mongodb-org-server
+pip install pymongo
+
+systemctl enable mongod
+systemctl start mongod
+
