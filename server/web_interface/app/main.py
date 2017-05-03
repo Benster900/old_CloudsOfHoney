@@ -21,6 +21,7 @@ from app import mail
 from app import bootstrap
 from app import login_manager
 from app import security
+from app import mongo
 
 # Define a route for the default URL, which loads the form
 @app.route('/')
@@ -37,7 +38,7 @@ def sshkeyauthentication(sensorID):
 	if request.method == 'GET':
 		# connect to database
 		r.connect( "127.0.0.1", 28015).repl()
-
+ 
 		if r.db("cloudsofhoney").table("sensors").get(sensorID).run():
 			import os
 			sshkey = open('/home/cloudsofhoney/.ssh/id_rsa.pub','r').read()
@@ -107,29 +108,29 @@ def deploy():
 	scriptRequest = ""
 	scriptContents = ""
 
-	# connect to database
-	r.connect( "127.0.0.1", 28015).repl()
-
 	# If web request is pushing data to the server
 	if request.method == 'POST':
 	    # Get the script being requested
 	    scriptRequest = request.form['scriptSelect']
-	    
+
 	    # Selected scripts contents
 	    if scriptRequest != "newScript" and ( "submit_name" not in request.form ):
-	        scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
+	        scriptEntry = list(mongo.db.scripts.find({"scriptName" : scriptRequest}))[0]
 		scriptContents = scriptEntry['scriptContents']
-		scriptUID = scriptEntry['id']
+		scriptUID = scriptEntry['_id']
 		deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(request.headers['Host'], scriptRequest, scriptUID )
 	    # Update existing script 
 	    elif scriptRequest != "newScript" and ( "submit_name" in request.form ):
-		scriptContents = request.form['scriptBox']
-		r.db("cloudsofhoney").table("scripts").filter({"scriptName": scriptRequest}).update({"scriptContents": scriptContents}).run()	   
-
-		#
-		scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptRequest).run())[0]
+		scriptContents = request.form['scriptBox']	
+		print scriptRequest
+		print scriptContents
+		# Update WITHOUT $set will replace the entire document
+		mongo.db.scripts.update({"scriptName": scriptRequest}, {"$set": {"scriptContents": scriptContents}})
+		
+		scriptEntry = list(mongo.db.scripts.find({"scriptName" :scriptRequest}))[0]
+		print scriptEntry
 		scriptContents = scriptEntry['scriptContents']
-		scriptUID = scriptEntry['id']
+		scriptUID = scriptEntry['_id']
                 deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1} && sudo bash {1} {0} {2}""".format(request.headers['Host'], scriptRequest, scriptUID )
  
 	    # Create new script
@@ -144,11 +145,11 @@ def deploy():
                     scriptRequest = scriptName
                     scriptContents = request.form['scriptBox']
                     sensorType = scriptName[scriptName.find('_')+1:-3]
-                    r.db("cloudsofhoney").table("scripts").insert({'scriptName':scriptName, 'sensorType': sensorType, 'scriptContents':scriptContents }).run()
+		    mongo.db.scripts.insert({'scriptName': scriptName, 'sensorType': sensorType, 'scriptContents': scriptContents })
 
                     # Get information for deploy command
-                    scriptEntry = list(r.db("cloudsofhoney").table("scripts").filter(r.row["scriptName"] == scriptName).run())[0]
-                    scriptUID = scriptEntry['id']
+                    scriptEntry = list(mongo.db.scripts.find({"scriptName" : scriptName}))[0]
+                    scriptUID = scriptEntry['_id']
                     scriptContents = scriptEntry['scriptContents']
 
                     deployCommand = r"""wget https://{0}/scripts/{2}/{1} -O {1} && sed -i -e 's/\r$//' {1}  && sudo bash {1} {0} {2}""".format(COH_DOMAIN_NAME, scriptName, scriptUID )
@@ -158,13 +159,13 @@ def deploy():
         	scriptRequest = "newScript"
         	scriptContents = ""
 
-	# Get all deploy scripts
-	cursor = r.db("cloudsofhoney").table("scripts").run()
+	# Get all deploy scriptsi
+	cursor = mongo.db.scripts.find({})
 	for doc in cursor:
 	    if 'deploy_' in doc['scriptName']:
         	deployScripts.append(doc['scriptName'])
 
-	return render_template('deploy.html', deployScripts=deployScripts, deployCommand=deployCommand, fileContents=scriptContents, scriptRequest=scriptRequest )
+	return render_template('deploy.html',deployScripts=deployScripts, deployCommand=deployCommand, fileContents=scriptContents, scriptRequest=scriptRequest )
 
 """
 Returns a list of honeypots and network sensors deployed.

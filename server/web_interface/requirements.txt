@@ -3,6 +3,7 @@ Flask-Bootstrap
 Flask-Login
 uwsgi
 Flask_Sqlalchemy
-rethinkdb
 pymysql
 Flask-Security
+pymongo
+Flask-PyMongo

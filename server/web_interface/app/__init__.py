@@ -21,6 +21,8 @@ import rethinkdb as r
 from config import SECRET_KEY
 from datetime import datetime
 
+#Mongo 
+from flask.ext.pymongo import PyMongo
 
 # app setup
 bootstrap = Bootstrap()
@@ -40,6 +42,10 @@ mail.init_app(app)
 db.init_app(app)
 security.init_app(app, user_datastore)
 login_manager.init_app(app)
+
+# connect to another MongoDB database on the same host
+app.config['MONGO_DBNAME'] = 'cloudsofhoney'
+mongo = PyMongo(app, config_prefix='MONGO')
 
 from app import main 
 
