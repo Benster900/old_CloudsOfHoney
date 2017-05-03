@@ -11,8 +11,6 @@ from flask import Flask, render_template, redirect, request, url_for, flash, g
 from flask_login import LoginManager, login_user , logout_user , current_user , login_required
 from config import COH_DOMAIN_NAME
 from datetime import datetime
-from rethinkdb.errors import *
-import rethinkdb as r
 
 from .models import user_datastore, User, Role
 from app import app

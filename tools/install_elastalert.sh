@@ -12,11 +12,17 @@ cd /opt/elastalert
 # Install elastalert and requirements
 pip install --upgrade pip
 pip install setuptools --upgrade
-pip install virtualenv
-virtualenv env
-. env/bin/activate
 python setup.py install
 pip install -r requirements.txt
+pip install "elasticsearch>=5.0.0"
+#pip install virtualenv
+#virtualenv env
+#. env/bin/activate
+#python setup.py install
+#pip install -r requirements.txt
+
+# Create index
+elastalert-create-index
 
 # Setup config
 cp config.yaml.example config.yaml

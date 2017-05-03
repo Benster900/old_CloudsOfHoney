@@ -16,8 +16,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import *
-from rethinkdb.errors import *
-import rethinkdb as r
 from config import SECRET_KEY
 from datetime import datetime
 
