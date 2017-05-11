@@ -4,10 +4,10 @@ set -x
 set -e
 
 ################################## NTP Time Sync ##################################
-yum install ntp ntpdate ntp-doc -y
-systemctl enable ntpd
-systemctl start ntpd
-ntpdate pool.ntp.org || true
+#yum install ntp ntpdate ntp-doc -y
+#systemctl enable ntpd
+#systemctl start ntpd
+#ntpdate pool.ntp.org || true
 
 ##################################### Install Java ##################################
 #yum install wget -y
