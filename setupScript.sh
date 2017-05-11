@@ -61,6 +61,9 @@ cd $SCRIPTS
 source install_database.sh
 python install_init_databases.py $SCRIPTS
 
+echo "[`date`] ========= Installing Redis ========="
+source install_redis.sh
+
 echo "[`date`] ========= Installing Web Interface ========="
 source install_management_web_interface.sh
 
