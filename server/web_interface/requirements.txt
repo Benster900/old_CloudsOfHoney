@@ -7,3 +7,5 @@ pymysql
 Flask-Security
 pymongo
 Flask-PyMongo
+celery
+redis

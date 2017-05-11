@@ -14,6 +14,10 @@ COH_DOMAIN_NAME = 'cloud.localdomain'
 # Open application variables
 f = open(os.path.join(os.path.dirname( __file__ ),'app.vars'),'r')
 
+# Celery settings
+celery_broker='redis://localhost:6379'
+celery_backend='redis://localhost:6379'
+
 # Enable user registration page
 SECURITY_REGISTERABLE = True
 
