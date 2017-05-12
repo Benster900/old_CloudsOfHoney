@@ -20,6 +20,7 @@ from app import bootstrap
 from app import login_manager
 from app import security
 from app import mongo
+from app import celery
 
 # Define a route for the default URL, which loads the form
 @app.route('/')

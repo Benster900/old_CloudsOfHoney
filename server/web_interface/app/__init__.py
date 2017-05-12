@@ -35,6 +35,10 @@ from .models import user_datastore, User, Role
 app = Flask(__name__)
 app.config.from_object('config')
 
+# init celery 
+app.config.update(CELERY_BROKER_URL=celery_broker,CELERY_RESULT_BACKEND=celery_backend)
+celery = make_celery(app)
+
 bootstrap.init_app(app)
 mail.init_app(app)
 db.init_app(app)
