@@ -11,6 +11,7 @@ from flask import Flask, render_template, redirect, request, url_for, flash, g
 from flask_login import LoginManager, login_user , logout_user , current_user , login_required
 from config import COH_DOMAIN_NAME
 from datetime import datetime
+from bson.objectid import ObjectId
 
 from .models import user_datastore, User, Role
 from app import app
@@ -70,11 +71,14 @@ def newSensor(honeypotHostname, scriptID):
 
                     # Check all data is valid before adding
 	            if (ipAddr != None and hostname != None and tokenID != None):
-			sensorType = mongo.db.scripts.find({"_id":tokenID})[0]['sensorType']
+			# Get the sensorType from the tokenID
+			sensorType = list(mongo.db.scripts.find({"_id":ObjectId(tokenID)}))[0]['sensorType']
 
         		# Add new entry to sensor table and get sensor ID
                         sensorID = mongo.db.sensors.insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
-	                return sensorID
+			
+			# Convert BSON object to string
+			return str(sensorID)
 
         return "Honeypot not regisitered bad data\nIP Address: {0}\nHostname: {1}\nSensor Type: {2}\n\n".format(ipAddr, hostname, sensorType)
 
