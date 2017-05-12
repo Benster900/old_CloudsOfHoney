@@ -36,6 +36,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 
 # init celery 
+from .tasks import make_celery
 app.config.update(CELERY_BROKER_URL=celery_broker,CELERY_RESULT_BACKEND=celery_backend)
 celery = make_celery(app)
 
