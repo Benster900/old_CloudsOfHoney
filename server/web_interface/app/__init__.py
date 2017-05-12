@@ -20,7 +20,7 @@ from config import SECRET_KEY
 from datetime import datetime
 
 #Mongo 
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 
 # app setup
 bootstrap = Bootstrap()

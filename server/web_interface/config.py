@@ -26,6 +26,7 @@ dbUser=f.readline().strip()
 dbPass=f.readline().strip()
 dbHost=f.readline().strip()
 dbDatabase=f.readline().strip()
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{0}:{1}@{2}/{3}".format(dbUser, dbPass, dbHost, dbDatabase)
 
 # Security setting
