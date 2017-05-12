@@ -4,8 +4,12 @@ set -x
 set -e
 
 ##################################### Install Java ##################################
+<<<<<<< HEAD
 yum install available java\*devel -y
 javac -version
+=======
+yum install available java*devel -y
+>>>>>>> temp
 
 ##################################### Install/Setup Elasticsearch #####################################
 sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
