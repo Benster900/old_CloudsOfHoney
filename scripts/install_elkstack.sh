@@ -3,20 +3,8 @@
 set -x
 set -e
 
-################################## NTP Time Sync ##################################
-yum install ntp ntpdate ntp-doc -y
-systemctl enable ntpd
-systemctl start ntpd
-ntpdate pool.ntp.org || true
-
 ##################################### Install Java ##################################
-yum install wget -y
-
-cd /opt
-wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-linux-x64.rpm"
-rpm -Uvh jre-8u102-linux-x64.rpm
-rm -rf jre-8u102-linux-x64.rpm
-yum install java-devel -y
+yum install available java*devel -y
 
 ##################################### Install/Setup Elasticsearch #####################################
 sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
