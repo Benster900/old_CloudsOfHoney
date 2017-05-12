@@ -20,7 +20,7 @@ from config import SECRET_KEY
 from datetime import datetime
 
 #Mongo 
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 
 # app setup
 bootstrap = Bootstrap()
@@ -34,6 +34,11 @@ login_manager = LoginManager()
 from .models import user_datastore, User, Role
 app = Flask(__name__)
 app.config.from_object('config')
+
+# init celery 
+from .tasks import make_celery
+app.config.update(CELERY_BROKER_URL=celery_broker,CELERY_RESULT_BACKEND=celery_backend)
+celery = make_celery(app)
 
 bootstrap.init_app(app)
 mail.init_app(app)
