@@ -75,10 +75,12 @@ def newSensor(honeypotHostname, scriptID):
 			sensorType = list(mongo.db.scripts.find({"_id":ObjectId(tokenID)}))[0]['sensorType']
 
         		# Add new entry to sensor table and get sensor ID
-                        sensorID = mongo.db.sensors.insert({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
+                        sensorID = mongo.db.sensors.insert_one({"name":hostname, "hostname":hostname, "ipaddr":ipAddr, "sensorType":sensorType, "attacks":0})
 			
 			# Convert BSON object to string
-			return str(sensorID)
+			print type(str(sensorID.inserted_id))
+			
+			return str(sensorID.inserted_id).rstrip('\33')
 
         return "Honeypot not regisitered bad data\nIP Address: {0}\nHostname: {1}\nSensor Type: {2}\n\n".format(ipAddr, hostname, sensorType)
 
@@ -177,19 +179,6 @@ def search():
 @login_required
 def settings():
     return render_template('settings.html')
-
-"""
-Incident Respnse Dashboard
-"""
-@app.route('/ir/dashboard')
-@login_required
-def irDashboard():
-    return render_template('ir/dashboard.html')
-
-@app.route('/ir/createEvent')
-@login_required
-def irCreateEvent():
-    return render_template('ir/createEvent.html')
 
 """
 Logout authenticated user
