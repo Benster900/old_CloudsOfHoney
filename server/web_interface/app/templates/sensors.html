@@ -27,6 +27,7 @@ th, td {
     <th>Sensor Type</th>
     <th>UUID</th>
     <th>Attacks</th>
+    <th>Delete</th>
   </tr>
   {% set count = 1 %}
   {% for item in sensors %}
@@ -36,8 +37,12 @@ th, td {
       <td>{{ item['hostname'] }}</td>
       <td>{{ item['ipaddr'] }}</td>
       <td>{{ item['sensorType'] }}</td>
-      <td>{{ item['id'] }}</td>
+      <td>{{ item['_id'] }}</td>
       <td>{{ item['attacks'] }}</td>
+      <form action="{{ url_for('sensors') }}" method="POST">
+    	<!-- Submit data -->
+        <td><input type="submit" name="{{ item['_id'] }}" value="Delete"></td>
+      </form>
     </tr>
   {% set count = count + 1 %}
   {% endfor %}

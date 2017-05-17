@@ -157,9 +157,17 @@ def deploy():
 """
 Returns a list of honeypots and network sensors deployed.
 """
-@app.route('/sensors')
+@app.route('/sensors', methods=['GET','POST'])
 @login_required
 def sensors():
+	# Delete a sensor from database
+	print request.form
+	if request.method == 'POST':
+	    print "post hello"
+	    tokenID = list(request.form)[0]
+	    print tokenID
+            mongo.db.sensors.remove({'_id': ObjectId(tokenID) })
+
 	# Get a list of sensor from database
 	cursor = list(mongo.db.sensors.find({}))
 	return render_template('sensors.html', sensors=cursor)
