@@ -3,21 +3,19 @@
 set -x
 set -e
 
-
 # Installing postfix
 yum remove sendmail -y
 yum install postfix -y
 yum install -y mailx
 
-read -p "Setup E-mail alerts [Y/N]: " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ $emailAlerts =~ ^[Yy]$ ]]; then
 # Configure postfix to forward mails
 echo "virtual_alias_domains = $domainName
 virtual_alias_maps = hash:/etc/postfix/virtual" >> /etc/postfix/main.cf
 
 # emails you want to forward 
 read -p "Enter e-mail to forward all alerts to: " -e email
-echo "@$domainName $email" >> /etc/postfix/virtual
+echo "@$domainName $emailAddress" >> /etc/postfix/virtual
 
 # Update the postfix lookup table 
 postmap /etc/postfix/virtual
