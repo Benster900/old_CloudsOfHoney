@@ -52,13 +52,12 @@ cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 # Delete server block  in default config
 sed -i -e '38,87d' /etc/nginx/nginx.conf
 
-read -p "Create OpenSSL cert or Let's Encrypt Cert [L/O]: " -n 1 -r
-if [[ $REPLY =~ ^[Oo]$ ]]; then
+if [[ $certType =~ ^[Oo]$ ]]; then
 	mkdir /etc/nginx/ssl
 	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
   	openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
-cat > /etc/nginx/conf.d/kibana.conf << EOF
+cat > /etc/nginx/conf.d/kibana.conf <<\EOF
 server {
         listen 9000 ssl;
         server_name _;
@@ -85,10 +84,10 @@ server {
 	location / {
         	proxy_pass http://localhost:5601;
         	proxy_http_version 1.1;
-        	proxy_set_header Upgrade \$http_upgrade;
+        	proxy_set_header Upgrade $http_upgrade;
         	proxy_set_header Connection 'upgrade';
-        	proxy_set_header Host \$host;
-        	proxy_cache_bypass \$http_upgrade;
+        	proxy_set_header Host $host;
+        	proxy_cache_bypass $http_upgrade;
     	}
 }
 EOF
@@ -187,7 +186,6 @@ cd /usr/share/logstash/vendor/geoip
 sudo wget "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz"
 sudo wget "http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.dat.gz"
 sudo gunzip *.dat.gz
-
 
 #### Logstash input ####
 cat $cloudsDir/server/logstash/02-beats-input.conf >> /etc/logstash/conf.d/02-beats-input.conf

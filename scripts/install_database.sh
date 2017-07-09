@@ -9,13 +9,17 @@ pip install MySQL-python
 systemctl enable mariadb
 systemctl start mariadb
 
-mysql_secure_installation
+# Set MariaDB root password
+mysqladmin -u root password $mysql_root_pass
 
-read -s -p "Enter password for MariaDB root user: "  mysqlRootPassword
-mysql --user="root" --password="$mysqlRootPassword" --execute="CREATE DATABASE cloudsofhoney;"
-read -s -p "Enter password for MariaDB clouduser user: " mysqlCloudUserPassword
-mysql --user="root" --password="$mysqlRootPassword" --execute="CREATE USER 'clouduser'@'localhost' IDENTIFIED BY '$mysqlCloudUserPassword';"
-mysql --user="root" --password="$mysqlRootPassword" --execute="GRANT ALL ON cloudsofhoney.* TO 'clouduser'@'localhost'; FLUSH PRIVILEGES;"
+# Create cloudsofhoney database
+mysql --user="root" --password="$mysql_root_pass" --execute="CREATE DATABASE cloudsofhoney;"
+
+# Create clouduser
+mysql --user="root" --password="$mysql_root_pass" --execute="CREATE USER '$mysql_coh_user'@'localhost' IDENTIFIED BY '$mysql_coh_pass';"
+
+# Grant all privileges to clouduser
+mysql --user="root" --password="mysql_root_pass" --execute="GRANT ALL ON cloudsofhoney.* TO '$mysql_coh_user'@'localhost'; FLUSH PRIVILEGES;"
 
 ################################## Install/Setup Mongo ##################################
 cat > /etc/yum.repos.d/mongodb.repo << EOF
