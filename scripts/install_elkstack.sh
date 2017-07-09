@@ -46,7 +46,7 @@ sudo systemctl start kibana.service
 ##################################### Install/Setup Nginx #####################################
 yum -y install epel-release
 yum -y install nginx httpd-tools
-sudo htpasswd -c /etc/nginx/htpasswdKibana.users kibanaadmin
+sudo htpasswd -c /etc/nginx/htpasswdKibana.users $kibana_user $kibana_pass
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
 # Delete server block  in default config
@@ -54,7 +54,7 @@ sed -i -e '38,87d' /etc/nginx/nginx.conf
 
 if [[ $certType =~ ^[Oo]$ ]]; then
 	mkdir /etc/nginx/ssl
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+	openssl req -subj ‘/CN=$commonName/O=$organizationName/C=$countryName’ -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
   	openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 cat > /etc/nginx/conf.d/kibana.conf <<\EOF
