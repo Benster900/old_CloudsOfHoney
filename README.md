@@ -32,9 +32,13 @@ systemctl restart cloudsofhoneywebgui`
 ### Kibana
 #### Indexes
 `Network Sensor - p0f : p0f-filebeat--%{+YYYY.MM.dd}
+
 Network Sensor - Bro: bro-filebeat--%{+YYYY.MM.dd}
+
 Network Sensor - Snort: snort-filebeat--%{+YYYY.MM.dd}
+
 Honeypot - Cowire: cowire-filebeat--%{+YYYY.MM.dd}
+
 Honeypot - Elastichoney: elastichoney-filebeat--%{+YYYY.MM.dd}
 `
 
@@ -58,8 +62,7 @@ Ansible currently runs every 24 hours to retrieve malware from honeypots. The -i
 `00 00 * * * cloudsofhoney /usr/bin/ansible-playbook /etc/ansible/ansible_malware_retrieval.yml -i /etc/ansible/ansible_get_hosts.py > /home/cloudsofhoney/cron.output`
 
 
-## RethinkDB
-A neat new NoSQL database that I am tinkering with.
+## MongoDB
 
 ## Malware Database
 Connect to another database: scripts/install_management_web_interface.sh
@@ -67,14 +70,6 @@ Set: `python $web_dir/setup.py --dbUser <user> --dbPass <password> --dbHost <ip 
 ### Local Malware
 Ansible is used to retrieve malware from each sensor and store it locally for 24 hours. Within this 24 hour window the malware is processes by a binary analyzer.
 `Location: /srv/malwareSamples/<date>`
-
-
-## Malware Partition
-A seperate partition is created on the system with the execution permissions turned off.
-
-### Rclone
-My university has Google Apps so I get "unlimited" Google Drive space. I decided to store all my samples on Google Drive rather than pay for Amazon S3.
-
 
 # Alerts
 ## SMTP Alerts
