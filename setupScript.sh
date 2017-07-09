@@ -34,6 +34,9 @@ pip install --upgrade pip
 cloudsDir="$(pwd)"
 SCRIPTS="$cloudsDir/scripts/"
 
+# Import config settings
+source settings.conf
+
 # Create user
 useradd cloudsofhoney
 
@@ -43,10 +46,11 @@ chown cloudsofhoney:nginx -R $cloudsDir
 cd $SCRIPTS
 
 echo "[`date`] Starting Installation of CloudsOfHoney Managemnet Node"
+
+
 # Change hostname
-read -p "Enter domain name: " -e domainName
 if [ $(hostname) == "localhost.localdomain" ]; then
-  hostnamectl set-hostname $domainName
+  hostnamectl set-hostname $domainName >&2
 fi
 
 echo "[`date`] ========= Setup config file ========="
