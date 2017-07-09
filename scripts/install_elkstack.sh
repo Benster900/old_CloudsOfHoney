@@ -46,7 +46,7 @@ sudo systemctl start kibana.service
 ##################################### Install/Setup Nginx #####################################
 yum -y install epel-release
 yum -y install nginx httpd-tools
-sudo htpasswd -b /etc/nginx/htpasswdKibana.users $kibana_user $kibana_pass
+htpasswd -cb /etc/nginx/htpasswdKibana.users $kibana_user $kibana_pass
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
 # Delete server block  in default config
